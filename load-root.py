@@ -1,18 +1,43 @@
 import argparse, root_numpy
 import numpy as np
-
+import os 
+import ROOT
+import pandas as pd
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--filename', help='Provide a filename to read')
-parser.add_argument('--branches', help='If you want, provide some branches to filter.', default='')
+parser.add_argument('--outdir',   help='Provide an output directory')
+#parser.add_argument('--branches', help='If you want, provide some branches to filter.', default='')
 
 args = parser.parse_args()
 
+#writing branches as list of tuples seems like an easy way to format the output
+x_branches = [('PU'),('depth'),('pt'),('ieta'),('iphi'),('raw[0]'),('raw[1]'),('raw[2]'),('raw[3]'),('raw[4]'),('raw[5]'),('raw[6]'),('raw[7]')]
+y_branches = ['genE','energy','em3','eraw']
+
+def save(name, arr):
+    os.system('mkdir -p %s'%('/'.join(args.outdir.split('/')[:-1])))
+    arr.to_pickle(args.outdir+name+".pkl")
+
 def load_root(filename="Out.root_skimmedRH.root", branches=None):
-    return root_numpy.root2array(filename, branches=branches)
+
+    rfile = ROOT.TFile.Open(filename)
+    rtree = rfile.Get("Events")
+    return root_numpy.tree2array(rtree, branches=branches)
 
 if __name__ == '__main__':
-    if args.branches == '':
-        print(load_root(args.filename))
-    else:
-        print(load_root(args.filename, args.branches))
+
+    Xtmp = load_root(args.filename, x_branches)
+    Ytmp = load_root(args.filename, y_branches)
+    Xarr = np.zeros(shape=(Xtmp.shape[0],len(x_branches)))
+    Yarr = np.zeros(shape=(Ytmp.shape[0],len(y_branches)))
+ 
+    #it comes out of load_root in an annoying way
+    for it in range(Xtmp.shape[0]):
+        Xarr[it] = np.array(list(Xtmp[it]))
+        Yarr[it] = np.array(list(Ytmp[it]))
+
+    Xarr = pd.DataFrame(Xarr[:,:],columns=x_branches)
+    Yarr = pd.DataFrame(Yarr[:,:],columns=y_branches)
+    save('X',Xarr)
+    save('Y',Yarr)
