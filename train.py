@@ -21,7 +21,7 @@ import ROOT
 
 VALSPLIT = 0.2 #0.7
 np.random.seed(5)
-Nrhs = 2000000
+Nrhs = 2100000
 
 def _make_parent(path):
     os.system('mkdir -p %s'%('/'.join(path.split('/')[:-1])))
@@ -72,9 +72,10 @@ class Sample(object):
         self.X.drop(['PU','pt'],1,inplace=True)
         self.Y = np.load('%s/%s.pkl'%(base,'Y'),allow_pickle=True)[:Nrhs]
 
+        print self.X.shape, self.Y.shape
         self.kin = np.load('%s/%s.pkl'%(base,'X'),allow_pickle=True)[:Nrhs][['PU','ieta','iphi','pt']]
 
-        self.idx = np.random.permutation(Nrhs)
+        self.idx = np.random.permutation(self.X.shape[0])
 
     @property
     def tidx(self):
@@ -178,7 +179,7 @@ if __name__ == '__main__':
     parser.add_argument('--hidden', type=int, default=4)
     args = parser.parse_args()
 
-    basedir = 'testFiles4/'
+    basedir = 'testFiles5/'
     figsdir =  basedir+'plots/'
     modeldir = 'models/evt/v%i/'%(args.version)
 
