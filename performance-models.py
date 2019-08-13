@@ -17,7 +17,6 @@ def getQuantiles(th,quantiles):
     return q[0],q[1]
 
 def rootfit(methodarr, genarr, methodname, purange, ptrange, figdir):
-
     name = "%s_%.0f_pu_%.0f_%.0f_pt_%.0f"%(methodname,purange[0],purange[1],ptrange[0],ptrange[1])
     tmp = ROOT.TH1F(name+"tmp",name+"tmp",500,-300.,300.)
 
@@ -47,80 +46,77 @@ def rootfit(methodarr, genarr, methodname, purange, ptrange, figdir):
     return mu, std
 
 def drawTH1(figs, title, axes, figdir, filename, l0 = None):
-
     c0 = ROOT.TCanvas("c0","c0",800,600)
     for i, fig in enumerate(figs):
-       try:
-         fig.SetStats(0)
-       except: pass
-       if i == 0: fig.Draw("ape")
-       else:      fig.Draw("same")
-       
-       fig.SetTitle(title)
-       fig.GetXaxis().SetTitle(axes["x"])
-       fig.GetYaxis().SetTitle(axes["y"])
+        try:
+            fig.SetStats(0)
+        except: pass
+        if i == 0: fig.Draw("ape")
+        else:      fig.Draw("same")
+        
+        fig.SetTitle(title)
+        fig.GetXaxis().SetTitle(axes["x"])
+        fig.GetYaxis().SetTitle(axes["y"])
 
     if l0 is not None: l0.Draw() 
     c0.SaveAs(figdir+filename+".pdf")
     c0.SaveAs(figdir+filename+".png")
-      
+    
 
-def performance(df, figdir):
-
-
+def performance(df, times, figdir):
     #define methods to plot, target variable, and binning variables
     methods     = ["Mahi","DNN","M3","M0"]
     target      = "genE"
     variables   = {
-		   "PU" : [10,30,50,70],
-                   "pt" : [1.,5.,7.,10.,13.,15.,17.,20.,30.,40.,50.,60.,70.,80.,90.,100.],
-	          }
+        "PU" : [10,30,50,70],
+        "pt" : [1.,5.,7.,10.,13.,15.,17.,20.,30.,40.,50.,60.,70.,80.,90.,100.],
+    }
 
     if len(variables) == 2:
+        for it0 in range(len(variables["PU"])-1):
+            mg_resp  = ROOT.TMultiGraph()
+            mg_reso  = ROOT.TMultiGraph()
+            g_time  = ROOT.TGraph(len(times["batches"]), times["batches"], times["times"])
+            l0 = ROOT.TLegend(0.65,0.65,0.9,0.9)
 
+            col = 0
+            for method in methods:
+                hresolution = ROOT.TGraph(len(variables["pt"]) - 1)
+                hresponse   = ROOT.TGraph(len(variables["pt"]) - 1)
+                col+=1
 
-          for it0 in range(len(variables["PU"])-1):
+                for it1 in range(len(variables["pt"])-1):
+                    tmp = df[(df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][[method]] 
+                    tmparr = tmp.values
+                    genarr = df[(df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][['genE']].values 
+                    mu, std = rootfit(tmparr,genarr, method, [variables["PU"][it0], variables["PU"][it0+1]], [ variables["pt"][it1],variables["pt"][it1+1]], figdir)
+                    ptmean = variables["pt"][it1] + variables["pt"][it1+1] 
+                    hresolution.SetPoint(it1, ptmean/2., std/(ptmean/2.))
+                    hresponse.SetPoint(it1,   ptmean/2., 1 - mu/(ptmean/2.))
 
-             mg_resp  = ROOT.TMultiGraph()
-             mg_reso  = ROOT.TMultiGraph()
-             l0 = ROOT.TLegend(0.65,0.65,0.9,0.9)
- 
-             col = 0
-             for method in methods:
-              hresolution = ROOT.TGraph(len(variables["pt"]) - 1)
-              hresponse   = ROOT.TGraph(len(variables["pt"]) - 1)
-              col+=1
+                l0.AddEntry(hresolution,method)
+                hresolution.SetMarkerSize(4)
+                hresolution.SetMarkerStyle(col+1)
+                hresolution.SetMarkerColor(col+1)
+                hresolution.SetName(method)
+                hresponse.SetMarkerSize(5)
+                hresponse.SetMarkerStyle(col+1)
+                hresponse.SetMarkerColor(col+1)
+                hresponse.SetName(method)
+                print "NAME2", hresolution.GetName()
+                mg_resp.Add(hresponse)
+                mg_reso.Add(hresolution)
+                del hresolution; del hresponse
 
-              for it1 in range(len(variables["pt"])-1):
-
-                tmp = df[(df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][[method]] 
-                tmparr = tmp.values
-                genarr = df[(df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][['genE']].values 
-                mu, std = rootfit(tmparr,genarr, method, [variables["PU"][it0], variables["PU"][it0+1]], [ variables["pt"][it1],variables["pt"][it1+1]], figdir)
-                ptmean = variables["pt"][it1] + variables["pt"][it1+1] 
-                hresolution.SetPoint(it1, ptmean/2., std/(ptmean/2.))
-                hresponse.SetPoint(it1,   ptmean/2., 1 - mu/(ptmean/2.))
-
-              l0.AddEntry(hresolution,method)
-              hresolution.SetMarkerSize(4)
-              hresolution.SetMarkerStyle(col+1)
-              hresolution.SetMarkerColor(col+1)
-              hresolution.SetName(method)
-              hresponse.SetMarkerSize(5)
-              hresponse.SetMarkerStyle(col+1)
-              hresponse.SetMarkerColor(col+1)
-              hresponse.SetName(method)
-              print "NAME2", hresolution.GetName()
-              mg_resp.Add(hresponse)
-              mg_reso.Add(hresolution)
-              del hresolution; del hresponse
-
-             name = "%.0f < PU < %.0f"%(variables["PU"][it0],variables["PU"][it0+1])
-             axis = {"y":"#sigma_{E}/E", "x": "p_{T} (GeV)"}
-             drawTH1([mg_reso], name, axis, figdir, "resolution_%i"%it0,l0) 
-             
-             axis = {"y":"1 - #mu/E", "x": "p_{T} (GeV)"} 
-             drawTH1([mg_resp], name, axis, figdir, "response_%i"%it0,l0)
+            name = "%.0f < PU < %.0f"%(variables["PU"][it0],variables["PU"][it0+1])
+            axis = {"y":"#sigma_{E}/E", "x": "p_{T} (GeV)"}
+            drawTH1([mg_reso], name, axis, figdir, "resolution_%i"%it0,l0) 
+            
+            axis = {"y":"1 - #mu/E", "x": "p_{T} (GeV)"} 
+            drawTH1([mg_resp], name, axis, figdir, "response_%i"%it0,l0)
+            
+            axis = {"x" : "Batch size", "y" : "Inference time per rec hit (s)"}
+            drawTH1([g_time], "Time", axis, figdir, "timing")
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -132,6 +128,9 @@ if __name__ == '__main__':
     gROOT.SetBatch(ROOT.kTRUE)
     _make_parent(args.figdir)
     for directory in os.listdir(args.pickle):
-      if not os.path.isdir(args.pickle+directory): continue
-      os.system('mkdir '+args.figdir+directory+'/')
-      performance(pickle.load(open(args.pickle+directory+'/results.pkl','r')), args.figdir+directory+'/')
+        if not os.path.isdir(args.pickle+directory): continue
+        os.system('mkdir '+args.figdir+directory+'/')
+        performance(pickle.load(open(args.pickle+directory+'/results.pkl','r')),
+            pickle.load(open(args.pickle+directory+'/times.pkl','r')),
+            args.figdir+directory+'/',
+        )

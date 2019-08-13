@@ -86,15 +86,16 @@ def savepickle(methods, binning, times, modeldir):
     print [arr for _, arr in methods.iteritems()]
     print [arr.shape for _, arr in methods.iteritems()]
     a = np.concatenate([arr for _, arr in methods.iteritems()] + 
-                       [arr for _, arr in binning.iteritems()] + 
-                       [arr for _, arr in times.iteritems()], axis=1)
+                       [arr for _, arr in binning.iteritems()], axis=1)
     print a
+    time_data = np.concatenate([arr for _, arr in times.iteritems()], axis=1)
 
     df = pd.DataFrame(data=a,columns=[name for name, _ in methods.iteritems()] + 
-                                     [name for name, _ in binning.iteritems()] +
-                                     [name for name, _ in times.iteritems()])
+                                     [name for name, _ in binning.iteritems()])
+    df_time = pd.DataFrame(data=time_data,columns=[name for name, _ in times.iteritems()])
     print df
     df.to_pickle(modeldir+"results.pkl")
+    df_time.to_pickle(modeldir+"times.pkl")
 
 
 if __name__ == '__main__':
@@ -139,7 +140,7 @@ if __name__ == '__main__':
                 for i in range(len(BATCH_SIZES)):
                     print BATCH_SIZES[i]
                     sample.infer(model, BATCH_SIZES[i])
-                    times[i] += sample.time / args.trials
+                    times[i] += sample.time / args.trials / Nrhs
             print sample.X.shape
             print sample.Yhat.shape
             print sample.Y['energy'].shape
