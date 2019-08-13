@@ -59,6 +59,7 @@ def drawTH1(figs, title, axes, figdir, filename, l0 = None):
         fig.GetYaxis().SetTitle(axes["y"])
 
     if l0 is not None: l0.Draw() 
+
     c0.SaveAs(figdir+filename+".pdf")
     c0.SaveAs(figdir+filename+".png")
     
@@ -74,9 +75,14 @@ def performance(df, times, figdir):
 
     if len(variables) == 2:
         for it0 in range(len(variables["PU"])-1):
-            mg_resp  = ROOT.TMultiGraph()
-            mg_reso  = ROOT.TMultiGraph()
-            g_time  = ROOT.TGraph(len(times["batches"]), times["batches"], times["times"])
+            mg_resp = ROOT.TMultiGraph()
+            mg_reso = ROOT.TMultiGraph()
+            mg_time = ROOT.TMultiGraph()# I'll make it a multigraph to copy the syntax despite the fact that it's just one graph.
+            print np.array(times["batches"]), type(times["batches"])
+            print np.array(times["times"]), type(times["batches"])
+            g_time  = ROOT.TGraph(len(times["batches"]),)
+                                  #array.array('f', times["batches"]), 
+                                  #array.array('f', times["times"]))
             l0 = ROOT.TLegend(0.65,0.65,0.9,0.9)
 
             col = 0
@@ -108,6 +114,16 @@ def performance(df, times, figdir):
                 mg_reso.Add(hresolution)
                 del hresolution; del hresponse
 
+            for i in range(len(times["batches"])):
+                g_time.SetPoint(i, times["batches"][i], times["times"][i])
+                
+            g_time.SetMarkerSize(2)
+            g_time.SetMarkerStyle(0)
+            g_time.SetMarkerColor(0)
+            g_time.SetName("Whatever")
+            mg_time.Add(g_time)
+            del g_time
+
             name = "%.0f < PU < %.0f"%(variables["PU"][it0],variables["PU"][it0+1])
             axis = {"y":"#sigma_{E}/E", "x": "p_{T} (GeV)"}
             drawTH1([mg_reso], name, axis, figdir, "resolution_%i"%it0,l0) 
@@ -116,7 +132,7 @@ def performance(df, times, figdir):
             drawTH1([mg_resp], name, axis, figdir, "response_%i"%it0,l0)
             
             axis = {"x" : "Batch size", "y" : "Inference time per rec hit (s)"}
-            drawTH1([g_time], "Time", axis, figdir, "timing")
+            drawTH1([mg_time], "Inference time", axis, figdir, "timing")
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -131,6 +147,6 @@ if __name__ == '__main__':
         if not os.path.isdir(args.pickle+directory): continue
         os.system('mkdir '+args.figdir+directory+'/')
         performance(pickle.load(open(args.pickle+directory+'/results.pkl','r')),
-            pickle.load(open(args.pickle+directory+'/times.pkl','r')),
+            pickle.load(open(args.pickle+directory+'/times.pkl','rb')),
             args.figdir+directory+'/',
         )

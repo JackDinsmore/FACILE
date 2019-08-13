@@ -55,8 +55,10 @@ VALSPLIT = 0.2
 np.random.seed(5)
 Nrhs = 2100000
 
+bottom_power = 1
 top_power = 4 # Max batch size: 10,000
-BATCH_SIZES = [a for i in range(top_power) for a in range(10**i, 10**(i+1), 10**i)] + [10**top_power]
+BATCH_SIZES = [a for i in range(bottom_power, top_power) for a in range(10**i, 10**(i+1), 10**i)] + [10**top_power]
+BATCH_SIZES = [128, 256]
 
 def get_mu_std(sample):
     mu = np.mean(sample.X, axis=0)
@@ -82,20 +84,19 @@ def get_mu_std(sample):
     tf.Write()'''
 
 def savepickle(methods, binning, times, modeldir):
-    print times['times']
+    print "TIMES:", times['times']
     print [arr for _, arr in methods.iteritems()]
     print [arr.shape for _, arr in methods.iteritems()]
     a = np.concatenate([arr for _, arr in methods.iteritems()] + 
                        [arr for _, arr in binning.iteritems()], axis=1)
     print a
-    time_data = np.concatenate([arr for _, arr in times.iteritems()], axis=1)
 
     df = pd.DataFrame(data=a,columns=[name for name, _ in methods.iteritems()] + 
                                      [name for name, _ in binning.iteritems()])
-    df_time = pd.DataFrame(data=time_data,columns=[name for name, _ in times.iteritems()])
     print df
     df.to_pickle(modeldir+"results.pkl")
-    df_time.to_pickle(modeldir+"times.pkl")
+    with open(modeldir+'times.pkl', 'wb') as handle:
+        pickle.dump(times, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 if __name__ == '__main__':
