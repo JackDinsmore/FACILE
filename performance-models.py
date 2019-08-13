@@ -16,7 +16,7 @@ def getQuantiles(th,quantiles):
     th.GetQuantiles(len(probSum),q,probSum)
     return q[0],q[1]
 
-def rootfit(methodarr, genarr, methodname, purange, ptrange):
+def rootfit(methodarr, genarr, methodname, purange, ptrange, figdir):
 
     name = "%s_%.0f_pu_%.0f_%.0f_pt_%.0f"%(methodname,purange[0],purange[1],ptrange[0],ptrange[1])
     tmp = ROOT.TH1F(name+"tmp",name+"tmp",500,-300.,300.)
@@ -41,12 +41,12 @@ def rootfit(methodarr, genarr, methodname, purange, ptrange):
     std = th.GetStdDev()#func.GetParameter(2)
     axis = {"x" : "E_{%s} - E_{gen}"%(methodname), "y" : "Density"}
     title = "%s %.0f < PU < %.0f, %.0f < p_{T} < %.0f"%(methodname,purange[0],purange[1],ptrange[0],ptrange[1])
-    drawTH1([th,func], title, axis, name)
+    drawTH1([th,func], title, axis, figdir, name)
 
     del tmp; del func; del th
     return mu, std
 
-def drawTH1(figs, title, axes, filename, l0 = None):
+def drawTH1(figs, title, axes, figdir, filename, l0 = None):
 
     c0 = ROOT.TCanvas("c0","c0",800,600)
     for i, fig in enumerate(figs):
@@ -61,11 +61,11 @@ def drawTH1(figs, title, axes, filename, l0 = None):
        fig.GetYaxis().SetTitle(axes["y"])
 
     if l0 is not None: l0.Draw() 
-    c0.SaveAs(args.figdir+filename+".pdf")
-    c0.SaveAs(args.figdir+filename+".png")
+    c0.SaveAs(figdir+filename+".pdf")
+    c0.SaveAs(figdir+filename+".png")
       
 
-def performance(df):
+def performance(df, figdir):
 
 
     #define methods to plot, target variable, and binning variables
@@ -96,7 +96,7 @@ def performance(df):
                 tmp = df[(df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][[method]] 
                 tmparr = tmp.values
                 genarr = df[(df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][['genE']].values 
-                mu, std = rootfit(tmparr,genarr, method, [variables["PU"][it0], variables["PU"][it0+1]], [ variables["pt"][it1],variables["pt"][it1+1]])
+                mu, std = rootfit(tmparr,genarr, method, [variables["PU"][it0], variables["PU"][it0+1]], [ variables["pt"][it1],variables["pt"][it1+1]], figdir)
                 ptmean = variables["pt"][it1] + variables["pt"][it1+1] 
                 hresolution.SetPoint(it1, ptmean/2., std/(ptmean/2.))
                 hresponse.SetPoint(it1,   ptmean/2., 1 - mu/(ptmean/2.))
@@ -117,10 +117,10 @@ def performance(df):
 
              name = "%.0f < PU < %.0f"%(variables["PU"][it0],variables["PU"][it0+1])
              axis = {"y":"#sigma_{E}/E", "x": "p_{T} (GeV)"}
-             drawTH1([mg_reso], name, axis, "resolution_%i"%it0,l0) 
+             drawTH1([mg_reso], name, axis, figdir, "resolution_%i"%it0,l0) 
              
              axis = {"y":"1 - #mu/E", "x": "p_{T} (GeV)"} 
-             drawTH1([mg_resp], name, axis, "response_%i"%it0,l0)
+             drawTH1([mg_resp], name, axis, figdir, "response_%i"%it0,l0)
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -131,6 +131,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     gROOT.SetBatch(ROOT.kTRUE)
     _make_parent(args.figdir)
-    for dir in os.listdir():
-      if not os.path.isdir(dir): continue
-      performance(pickle.load(open(args.pickle,'r')))
+    for directory in os.listdir(args.pickle):
+      if not os.path.isdir(args.pickle+directory): continue
+      os.system('mkdir '+args.figdir+directory+'/')
+      performance(pickle.load(open(args.pickle+directory+'/results.pkl','r')), args.figdir+directory+'/')

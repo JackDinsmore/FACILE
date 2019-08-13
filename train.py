@@ -179,7 +179,7 @@ if __name__ == '__main__':
     parser.add_argument('--hidden', type=int, default=4)
     args = parser.parse_args()
 
-    basedir = 'testFiles5/'
+    basedir = 'output/'
     figsdir =  basedir+'plots/'
     modeldir = 'models/evt/v%i/'%(args.version)
 

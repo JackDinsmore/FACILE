@@ -19,6 +19,13 @@ from collections import namedtuple
 import pickle 
 import ROOT 
 
+VALSPLIT = 0.2 #0.7
+np.random.seed(5)
+Nrhs = 2100000
+
+def _make_parent(path):
+    os.system('mkdir -p %s'%('/'.join(path.split('/')[:-1])))
+
 ### Sample class
 class Sample(object):
     def __init__(self, name, base):
@@ -75,7 +82,7 @@ class ClassModel(object):
         self.name = None
         return None
 
-    def train(self, sample):
+    def train(self, sample, num_epochs):
 
         tX = sample.X.values[sample.tidx]
         vX = sample.X.values[sample.vidx]
@@ -83,7 +90,7 @@ class ClassModel(object):
         vY = sample.Y[['genE']].values[sample.vidx] 
 
         history = self.model.fit(tX, tY, 
-                                 batch_size=2024, epochs=20, shuffle=True,
+                                 batch_size=2024, epochs=num_epochs, shuffle=True,
                                  validation_data=(vX, vY))
 
         with open('history.log','w') as flog:

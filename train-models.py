@@ -99,6 +99,7 @@ if __name__ == '__main__':
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--plot', action='store_true')
     parser.add_argument('--version', type=int, default=0)
+    parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--hidden', type=int, default=4)
     args = parser.parse_args()
 
@@ -118,7 +119,7 @@ if __name__ == '__main__':
 
         if args.train:
             print 'Training...'
-            model.train(sample)
+            model.train(sample, args.epochs)
             model.save_as_keras(modeldir+model.name+'/weights.h5')
             model.save_as_tf(modeldir+model.name+'/graph.pb')
         else:
@@ -154,6 +155,6 @@ if __name__ == '__main__':
             "pt"   : sample.kin['pt'].values.reshape(Nrhs,1)
             }
 
-            savepickle(methods,binning,modeldir+model.name)
+            savepickle(methods,binning,modeldir+model.name+'/')
 
 
