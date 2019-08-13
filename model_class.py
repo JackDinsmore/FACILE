@@ -18,6 +18,7 @@ import pandas as pd
 from collections import namedtuple
 import pickle 
 import ROOT 
+import time
 
 VALSPLIT = 0.2 #0.7
 np.random.seed(5)
@@ -54,9 +55,8 @@ class Sample(object):
         else:
             return self.idx[:int(VALSPLIT*len(self.idx))]
 
-    def infer(self, model):
-        self.Yhat = model.predict(self.X)
-
+    def infer(self, model, batch_size):
+        self.Yhat, self.time = model.predict(self.X, batch_size)
 
     def standardize(self, mu, std):
         self.X = (self.X - mu) / std
@@ -117,7 +117,10 @@ class ClassModel(object):
         print 'Saved to',path
 
     def predict(self, *args, **kwargs):
-        return self.model.predict(*args, **kwargs)
+        start_time = time.time()
+        predictions = self.model.predict(*args, **kwargs)
+        total_time = time.time() - start_time
+        return predictions, total_time
 
     def load_model(self, path):
         self.model = load_model(path)
