@@ -31,9 +31,77 @@ class ModelDefault(mc.ClassModel):
         h = Dense(5, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
-class Model1(mc.ClassModel):
+class ModelHigherMomentumDefault(mc.ClassModel):
     def get_outputs(self):
-        self.name = '4layers'
+        self.name = 'default'
+        h = self.inputs
+        h = BatchNormalization()(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization()(h)
+        h = Dense(100, activation = 'relu')(norm)
+        norm = BatchNormalization()(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = BatchNormalization()(h)
+        h = Dense(20, activation = 'relu')(norm)
+        norm = BatchNormalization()(h)
+        h = Dense(10, activation = 'relu')(norm)
+        norm = BatchNormalization()(h)
+        h = Dense(5, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class ModelShrinkDefault(mc.ClassModel):
+    def get_outputs(self):
+        self.name = 'default'
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(25, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(10, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(5, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(3, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class ModelShrink7(mc.ClassModel):
+    def get_outputs(self):
+        self.name = 'default'
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(25, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(10, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(5, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model7(mc.ClassModel):
+    def get_outputs(self):
+        self.name = 'default'
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(100, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(15, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(5, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model6(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '6layers'
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -47,7 +115,33 @@ class Model1(mc.ClassModel):
         h = Dense(5, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
-MODELS = [ModelDefault, Model1]
+class Model5(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '5layers'
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(75, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(25, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(5, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model4(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '4layers'
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(7, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+MODELS = [ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
 
 
 
@@ -58,7 +152,7 @@ Nrhs = 2100000
 bottom_power = 1
 top_power = 4 # Max batch size: 10,000
 BATCH_SIZES = [a for i in range(bottom_power, top_power) for a in range(10**i, 10**(i+1), 10**i)] + [10**top_power]
-BATCH_SIZES = [128, 256]
+BATCH_SIZES = [ 2 ** i for i in range(8, 17) ]
 
 def get_mu_std(sample):
     mu = np.mean(sample.X, axis=0)

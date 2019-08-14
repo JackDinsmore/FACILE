@@ -53,6 +53,10 @@ def drawTH1(figs, title, axes, figdir, filename, l0 = None):
         except: pass
         if i == 0: fig.Draw("ape")
         else:      fig.Draw("same")
+
+        if fig.GetName() == "Time":
+            print "Time graph!"
+            c0.SetLogx()
         
         fig.SetTitle(title)
         fig.GetXaxis().SetTitle(axes["x"])
@@ -115,7 +119,7 @@ def performance(df, times, figdir):
             g_time.SetMarkerSize(3)
             g_time.SetMarkerStyle(2)
             g_time.SetMarkerColor(ROOT.kRed)
-            g_time.SetName("Whatever")
+            g_time.SetName("Time")
             mg_time.Add(g_time)
             del g_time
 
