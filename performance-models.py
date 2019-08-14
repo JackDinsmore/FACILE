@@ -82,9 +82,7 @@ def performance(df, times, figdir):
             mg_resp = ROOT.TMultiGraph()
             mg_reso = ROOT.TMultiGraph()
             mg_time = ROOT.TMultiGraph()# I'll make it a multigraph to copy the syntax despite the fact that it's just one graph.
-            print np.array(times["batches"]), type(times["batches"])
-            print np.array(times["times"]), type(times["batches"])
-            g_time  = ROOT.TGraph(array.array('f', times["batches"]), array.array('f', times["times"]))
+            g_time  = ROOT.TGraph(len(times["batches"]))
             l0 = ROOT.TLegend(0.65,0.65,0.9,0.9)
 
             col = 0
@@ -115,7 +113,10 @@ def performance(df, times, figdir):
                 mg_resp.Add(hresponse)
                 mg_reso.Add(hresolution)
                 del hresolution; del hresponse
-                
+
+            for i in range(len(times['batches'])):
+                g_time.SetPoint(i, times['batches'][i], times['times'][i])
+
             g_time.SetMarkerSize(3)
             g_time.SetMarkerStyle(2)
             g_time.SetMarkerColor(ROOT.kRed)
