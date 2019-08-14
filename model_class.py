@@ -59,7 +59,7 @@ class Sample(object):
         self.Yhat, self.time = model.predict(self.X, batch_size)
 
     def standardize(self, mu, std):
-        self.X = (self.X - mu) / std
+        #self.X = (self.X - mu) / std
 
 ### Model class
 class ClassModel(object):

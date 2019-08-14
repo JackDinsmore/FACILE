@@ -10,7 +10,7 @@ from ROOT import gROOT,gPad
 def _make_parent(path):
     os.system('mkdir -p %s'%('/'.join(path.split('/')[:-1])))
 
-def getQuantiles(th,quantiles):
+def getQuantiles(th, quantiles):
     probSum = array.array('d',[quantiles[0],quantiles[1]])
     q = array.array('d',[0.0]*len(probSum))
     th.GetQuantiles(len(probSum),q,probSum)
@@ -27,7 +27,7 @@ def rootfit(methodarr, genarr, methodname, purange, ptrange, figdir):
     bq1 = tmp.FindBin(q1)
     bq2 = tmp.FindBin(q2)
  
-    #only fit 2nd to 98th quantile
+    # only fit 2nd to 98th quantile
     th = ROOT.TH1F(name,name,bq2 - bq1, q1, q2)
     for it0,it1 in enumerate(range(bq1, bq2)):
        th.SetBinContent(it0+1,tmp.GetBinContent(it1))
@@ -80,9 +80,7 @@ def performance(df, times, figdir):
             mg_time = ROOT.TMultiGraph()# I'll make it a multigraph to copy the syntax despite the fact that it's just one graph.
             print np.array(times["batches"]), type(times["batches"])
             print np.array(times["times"]), type(times["batches"])
-            g_time  = ROOT.TGraph(len(times["batches"]),)
-                                  #array.array('f', times["batches"]), 
-                                  #array.array('f', times["times"]))
+            g_time  = ROOT.TGraph(array.array('f', times["batches"]), array.array('f', times["times"]))
             l0 = ROOT.TLegend(0.65,0.65,0.9,0.9)
 
             col = 0
@@ -113,12 +111,8 @@ def performance(df, times, figdir):
                 mg_resp.Add(hresponse)
                 mg_reso.Add(hresolution)
                 del hresolution; del hresponse
-
-            for i in range(len(times["batches"])):
-                print times['batches'][i], times['times'][i]
-                g_time.SetPoint(i, times["batches"][i], times["times"][i])
                 
-            g_time.SetMarkerSize(2)
+            g_time.SetMarkerSize(3)
             g_time.SetMarkerStyle(2)
             g_time.SetMarkerColor(ROOT.kRed)
             g_time.SetName("Whatever")
