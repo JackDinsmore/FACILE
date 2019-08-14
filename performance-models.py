@@ -115,11 +115,12 @@ def performance(df, times, figdir):
                 del hresolution; del hresponse
 
             for i in range(len(times["batches"])):
+                print times['batches'][i], times['times'][i]
                 g_time.SetPoint(i, times["batches"][i], times["times"][i])
                 
             g_time.SetMarkerSize(2)
-            g_time.SetMarkerStyle(0)
-            g_time.SetMarkerColor(0)
+            g_time.SetMarkerStyle(2)
+            g_time.SetMarkerColor(ROOT.kRed)
             g_time.SetName("Whatever")
             mg_time.Add(g_time)
             del g_time
