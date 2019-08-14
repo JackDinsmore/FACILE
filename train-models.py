@@ -141,6 +141,18 @@ class Model4(mc.ClassModel):
         h = Dense(7, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
+class Model4LowMomentum(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '4layersLowMomentum'
+        h = self.inputs
+        h = BatchNormalization(momentum=0.1)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.1)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.1)(h)
+        h = Dense(7, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
 class Model3(mc.ClassModel):
     def get_outputs(self):
         self.name = '3layers'
@@ -159,7 +171,7 @@ class Model2(mc.ClassModel):
         h = Dense(n_inputs, activation='relu')(h)
         return Dense(1, activation='linear', name='output')(h)
 
-MODELS = [Model3, Model2]#[ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
+MODELS = [Model3, Model2, Model4LowMomentum]#[ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
 
 
 
