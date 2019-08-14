@@ -33,7 +33,7 @@ class ModelDefault(mc.ClassModel):
 
 class ModelHigherMomentumDefault(mc.ClassModel):
     def get_outputs(self):
-        self.name = 'default'
+        self.name = 'highMomentumDefault'
         h = self.inputs
         h = BatchNormalization()(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -51,7 +51,7 @@ class ModelHigherMomentumDefault(mc.ClassModel):
 
 class ModelShrinkDefault(mc.ClassModel):
     def get_outputs(self):
-        self.name = 'default'
+        self.name = 'shrinkDefault'
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -69,7 +69,7 @@ class ModelShrinkDefault(mc.ClassModel):
 
 class ModelShrink7(mc.ClassModel):
     def get_outputs(self):
-        self.name = 'default'
+        self.name = 'shrink7'
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -85,7 +85,7 @@ class ModelShrink7(mc.ClassModel):
 
 class Model7(mc.ClassModel):
     def get_outputs(self):
-        self.name = 'default'
+        self.name = '7layers'
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
