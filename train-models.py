@@ -141,7 +141,25 @@ class Model4(mc.ClassModel):
         h = Dense(7, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
-MODELS = [ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
+class Model3(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '3layers'
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model2(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '2layers'
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        return Dense(1, activation='linear', name='output')(h)
+
+MODELS = [Model3, Model2]#[ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
 
 
 
@@ -158,24 +176,6 @@ def get_mu_std(sample):
     mu = np.mean(sample.X, axis=0)
     std = np.std(sample.X, axis=0)
     return mu, std
-
-'''def saveroot(methods,binning,modeldir):
-    tf = ROOT.TFile.Open(modeldir+"results.root","RECREATE")
-
-    for name, arr in methods.iteritems():
-       th = ROOT.TH3F(name,name,2,0.,72.,2,17.,30.,2,20.,80.)
-       
-       for it, rh in enumerate(np.nditer(arr)):
-           ieta = abs(binning["ieta"][it])
-           iphi = binning["iphi"][it]
-           PU   = binning["PU"][it]
-          
-           th.Fill(ieta,PU,arr[it])
-
-       tf.cd()
-       th.Write(name)
-
-    tf.Write()'''
 
 def savepickle(methods, binning, times, modeldir):
     print "TIMES:", times['times']
@@ -268,5 +268,6 @@ if __name__ == '__main__':
             }
 
             savepickle(methods, binning, times, modeldir+model.name+'/')
+            K.clear_session()
 
 
