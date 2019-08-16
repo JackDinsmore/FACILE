@@ -80,10 +80,11 @@ class ClassModel(object):
     def get_outputs(self):
         # To be overridden 
         self.name = None
+        self.epochs = 20
         return None
 
-    def train(self, sample, num_epochs):
-
+    def train(self, sample, num_epochs=0):
+        if num_epochs == 0: num_epochs = self.epochs
         tX = sample.X.values[sample.tidx]
         vX = sample.X.values[sample.vidx]
         tY = sample.Y[['genE']].values[sample.tidx]

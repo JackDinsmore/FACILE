@@ -16,6 +16,7 @@ import ROOT
 class ModelDefault(mc.ClassModel):
     def get_outputs(self):
         self.name = 'default'
+        self.epochs = 11
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -34,6 +35,7 @@ class ModelDefault(mc.ClassModel):
 class ModelHigherMomentumDefault(mc.ClassModel):
     def get_outputs(self):
         self.name = 'highMomentumDefault'
+        self.epochs = 11
         h = self.inputs
         h = BatchNormalization()(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -52,6 +54,7 @@ class ModelHigherMomentumDefault(mc.ClassModel):
 class ModelShrinkDefault(mc.ClassModel):
     def get_outputs(self):
         self.name = 'shrinkDefault'
+        self.epochs = 11
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -70,6 +73,7 @@ class ModelShrinkDefault(mc.ClassModel):
 class ModelShrink7(mc.ClassModel):
     def get_outputs(self):
         self.name = 'shrink7'
+        self.epochs = 11
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -86,6 +90,7 @@ class ModelShrink7(mc.ClassModel):
 class Model7(mc.ClassModel):
     def get_outputs(self):
         self.name = '7layers'
+        self.epochs=11
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -102,6 +107,7 @@ class Model7(mc.ClassModel):
 class Model6(mc.ClassModel):
     def get_outputs(self):
         self.name = '6layers'
+        self.epochs = 11
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -118,6 +124,7 @@ class Model6(mc.ClassModel):
 class Model5(mc.ClassModel):
     def get_outputs(self):
         self.name = '5layers'
+        self.epochs = 11
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -132,6 +139,7 @@ class Model5(mc.ClassModel):
 class Model4(mc.ClassModel):
     def get_outputs(self):
         self.name = '4layers'
+        self.epochs = 11
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -144,6 +152,7 @@ class Model4(mc.ClassModel):
 class Model4LowMomentum(mc.ClassModel):
     def get_outputs(self):
         self.name = '4layersLowMomentum'
+        self.epochs = 11
         h = self.inputs
         h = BatchNormalization(momentum=0.1)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -156,6 +165,7 @@ class Model4LowMomentum(mc.ClassModel):
 class Model3(mc.ClassModel):
     def get_outputs(self):
         self.name = '3layers'
+        self.epochs = 10
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
@@ -163,15 +173,60 @@ class Model3(mc.ClassModel):
         h = Dense(50, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
+class Model3Narrow(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '3layersNarrow'
+        self.epochs = 10
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(18, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model3Wide(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '3layersWide'
+        self.epochs = 10
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(100, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model3HighMomentum(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '3layersHighMomentum'
+        self.epochs = 10
+        h = self.inputs
+        h = BatchNormalization()(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = BatchNormalization()(h)
+        h = Dense(50, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model3Tanh(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '3layersTanh'
+        self.epochs = 10
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(n_inputs, activation='tanh')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(50, activation = 'tanh')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
 class Model2(mc.ClassModel):
     def get_outputs(self):
         self.name = '2layers'
+        self.epochs = 13
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(n_inputs, activation='relu')(h)
         return Dense(1, activation='linear', name='output')(h)
 
-MODELS = [Model3, Model2, Model4LowMomentum]#[ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
+MODELS = [ModelDefault, Model4, Model3Wide, Model2]#ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
 
 
 
@@ -190,16 +245,15 @@ def get_mu_std(sample):
     return mu, std
 
 def savepickle(methods, binning, times, modeldir):
-    print "TIMES:", times['times']
-    print [arr for _, arr in methods.iteritems()]
-    print [arr.shape for _, arr in methods.iteritems()]
+    #print [arr for _, arr in methods.iteritems()]
+    #print [arr.shape for _, arr in methods.iteritems()]
     a = np.concatenate([arr for _, arr in methods.iteritems()] + 
                        [arr for _, arr in binning.iteritems()], axis=1)
-    print a
+    #print a
 
     df = pd.DataFrame(data=a,columns=[name for name, _ in methods.iteritems()] + 
                                      [name for name, _ in binning.iteritems()])
-    print df
+    #print df
     df.to_pickle(modeldir+"results.pkl")
     with open(modeldir+'times.pkl', 'wb') as handle:
         pickle.dump(times, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -211,7 +265,7 @@ if __name__ == '__main__':
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--plot', action='store_true')
     parser.add_argument('--version', type=int, default=0)
-    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--epochs', type=int, default=0)
     parser.add_argument('--hidden', type=int, default=4)
     parser.add_argument('--trials', type=int, default=1)
     args = parser.parse_args()
@@ -222,6 +276,8 @@ if __name__ == '__main__':
 
     sample = mc.Sample("RecHits", basedir)
     n_inputs = sample.X.shape[1]
+    
+    print 'N_INPUTS:', n_inputs
 
     print 'Standardizing...'
     mu, std = get_mu_std(sample)
@@ -229,15 +285,19 @@ if __name__ == '__main__':
 
     for Model in MODELS:
         model = Model(n_inputs)
+        print '='*50, model.name, '='*50
 
         if args.train:
             print 'Training...'
-            model.train(sample, args.epochs)
+            if args.epochs == 0:
+                model.train(sample)
+            else:
+                model.train(sample, args.epochs)
             model.save_as_keras(modeldir+model.name+'/weights.h5')
             model.save_as_tf(modeldir+model.name+'/graph.pb')
         else:
             print 'Loading...'
-            model.load_model(modeldir+model.name+'weights.h5')
+            model.load_model(modeldir+model.name+'/weights.h5')
 
         if args.plot:
             print 'Inferring...'
@@ -245,14 +305,14 @@ if __name__ == '__main__':
             for trial_num in range(args.trials):
                 print "Trial", trial_num
                 for i in range(len(BATCH_SIZES)):
-                    print BATCH_SIZES[i]
+                    print BATCH_SIZES[i],
                     sample.infer(model, BATCH_SIZES[i])
                     times[i] += sample.time / args.trials / Nrhs
-            print sample.X.shape
-            print sample.Yhat.shape
-            print sample.Y['energy'].shape
-            print sample.Y['eraw'].shape
-            print sample.Y['em3'].shape
+            #print sample.X.shape
+            #print sample.Yhat.shape
+            #print sample.Y['energy'].shape
+            #print sample.Y['eraw'].shape
+            #print sample.Y['em3'].shape
 
             shape = (sample.Y['genE'].values.shape[0],1)
             print shape
@@ -264,8 +324,8 @@ if __name__ == '__main__':
                 "M3"  : sample.Y['em3'].values.reshape(Nrhs,1)
             }
 
-            print sample.Y['energy'].values.reshape(Nrhs,1)[0:10]
-            print sample.Y['genE'].values.reshape(Nrhs,1)[0:10]
+            #print sample.Y['energy'].values.reshape(Nrhs,1)[0:10]
+            #print sample.Y['genE'].values.reshape(Nrhs,1)[0:10]
 
             binning = {
                 "ieta" : sample.kin['ieta'].values.reshape(Nrhs,1),
