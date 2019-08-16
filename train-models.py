@@ -32,6 +32,24 @@ class ModelDefault(mc.ClassModel):
         h = Dense(5, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
+class ModelOpen6(mc.ClassModel):
+    def get_outputs(self):
+        self.name = 'open6'
+        self.epochs = 20
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(100, activation = 'relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(20, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(10, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(5, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+
 class ModelHigherMomentumDefault(mc.ClassModel):
     def get_outputs(self):
         self.name = 'highMomentumDefault'
@@ -39,16 +57,16 @@ class ModelHigherMomentumDefault(mc.ClassModel):
         h = self.inputs
         h = BatchNormalization()(h)
         h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization()(h)
-        h = Dense(100, activation = 'relu')(norm)
-        norm = BatchNormalization()(h)
-        h = Dense(50, activation = 'relu')(norm)
-        norm = BatchNormalization()(h)
-        h = Dense(20, activation = 'relu')(norm)
-        norm = BatchNormalization()(h)
-        h = Dense(10, activation = 'relu')(norm)
-        norm = BatchNormalization()(h)
-        h = Dense(5, activation = 'relu')(norm)
+        h = BatchNormalization()(h)
+        h = Dense(100, activation = 'relu')(h)
+        h = BatchNormalization()(h)
+        h = Dense(50, activation = 'relu')(h)
+        h = BatchNormalization()(h)
+        h = Dense(20, activation = 'relu')(h)
+        h = BatchNormalization()(h)
+        h = Dense(10, activation = 'relu')(h)
+        h = BatchNormalization()(h)
+        h = Dense(5, activation = 'relu')(h)
         return Dense(1, activation='linear', name='output')(h)
 
 class ModelShrinkDefault(mc.ClassModel):
@@ -226,7 +244,16 @@ class Model2(mc.ClassModel):
         h = Dense(n_inputs, activation='relu')(h)
         return Dense(1, activation='linear', name='output')(h)
 
-MODELS = [ModelDefault, Model4, Model3Wide, Model2]#ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
+class ModelDumb(mc.ClassModel):
+    def get_outputs(self):
+        self.name = 'dumb'
+        self.epochs = 20
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(2, activation='relu')(h)
+        return Dense(1, activation='linear', name='output')(h)
+
+MODELS = [ModelDumb, ModelOpen6]#ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
 
 
 

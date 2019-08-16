@@ -55,7 +55,7 @@ def drawTH1(figs, title, axes, figdir, filename, l0 = None):
         else:      fig.Draw("same")
 
         if fig.GetName() == "Time":
-            print "Time graph!"
+            print '='*200+"Time graph!"
             c0.SetLogx()
         
         fig.SetTitle(title)
@@ -81,7 +81,6 @@ def performance(df, times, figdir):
         for it0 in range(len(variables["PU"])-1):
             mg_resp = ROOT.TMultiGraph()
             mg_reso = ROOT.TMultiGraph()
-            mg_time = ROOT.TMultiGraph()# I'll make it a multigraph to copy the syntax despite the fact that it's just one graph.
             g_time  = ROOT.TGraph(len(times["batches"]))
             l0 = ROOT.TLegend(0.65,0.65,0.9,0.9)
 
@@ -120,9 +119,19 @@ def performance(df, times, figdir):
             g_time.SetMarkerSize(3)
             g_time.SetMarkerStyle(2)
             g_time.SetMarkerColor(ROOT.kRed)
-            g_time.SetName("Time")
-            mg_time.Add(g_time)
-            del g_time
+            
+            c_time = ROOT.TCanvas("c0", "c0", 800, 600)
+            try:
+                g_time.SetStats(0)
+            except:
+                pass
+            c_time.SetLogx()
+            g_time.Draw("ape")
+            g_time.SetTitle('Inference Time')
+            g_time.GetXaxis().SetTitle('Batch size')
+            g_time.GetYaxis().SetTitle('Inference time per rec hit (s)') 
+            c_time.SaveAs(figdir+'timing.pdf')
+            c_time.SaveAs(figdir+'timing.png')
 
             name = "%.0f < PU < %.0f"%(variables["PU"][it0],variables["PU"][it0+1])
             axis = {"y":"#sigma_{E}/E", "x": "p_{T} (GeV)"}
@@ -131,8 +140,6 @@ def performance(df, times, figdir):
             axis = {"y":"1 - #mu/E", "x": "p_{T} (GeV)"} 
             drawTH1([mg_resp], name, axis, figdir, "response_%i"%it0,l0)
             
-            axis = {"x" : "Batch size", "y" : "Inference time per rec hit (s)"}
-            drawTH1([mg_time], "Inference time", axis, figdir, "timing")
 
 if __name__ == '__main__':
     from argparse import ArgumentParser

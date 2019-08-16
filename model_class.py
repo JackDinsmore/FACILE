@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from sklearn.metrics import auc
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve
 from sklearn.utils import shuffle
 from keras.models import Model, load_model
