@@ -35,7 +35,7 @@ class ModelDefault(mc.ClassModel):
 class ModelOpen6(mc.ClassModel):
     def get_outputs(self):
         self.name = 'open6'
-        self.epochs = 20
+        self.epochs = 10
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
         h = Dense(100, activation = 'relu')(h)

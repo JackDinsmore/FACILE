@@ -70,7 +70,7 @@ def drawTH1(figs, title, axes, figdir, filename, l0 = None):
 
 def performance(df, times, figdir):
     #define methods to plot, target variable, and binning variables
-    methods     = ["Mahi","DNN","M3","M0"]
+    methods     = ["Mahi","DNN","M3"]
     target      = "genE"
     variables   = {
         "PU" : [10,35,45,70],
@@ -139,12 +139,13 @@ def performance(df, times, figdir):
             c_time.SaveAs(figdir+'timing.png')
 
             name = "%.0f < PU < %.0f"%(variables["PU"][it0],variables["PU"][it0+1])
-            axis = {"y":"#sigma_{E}/E", "x": "p_{T} (GeV)"}
-            drawTH1([mg_reso], name, axis, figdir, "resolution_%i"%it0,l0) 
-            
             axis = {"y":"1 - #mu/E", "x": "p_{T} (GeV)"} 
             drawTH1([mg_resp], name, axis, figdir, "response_%i"%it0,l0)
-            
+
+            name += " (Response corrected)"
+            axis = {"y":"#sigma_{E}/E", "x": "p_{T} (GeV)"}
+            drawTH1([mg_reso], name, axis, figdir, "resolution_%i"%it0,l0) 
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
