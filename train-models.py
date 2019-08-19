@@ -253,7 +253,7 @@ class ModelDumb(mc.ClassModel):
         h = Dense(2, activation='relu')(h)
         return Dense(1, activation='linear', name='output')(h)
 
-MODELS = [ModelDumb, ModelOpen6]#ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
+MODELS = [Model6, ModelOpen6]#ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
 
 
 

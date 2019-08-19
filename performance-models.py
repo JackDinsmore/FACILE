@@ -96,7 +96,12 @@ def performance(df, times, figdir):
                     genarr = df[(df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][['genE']].values 
                     mu, std = rootfit(tmparr,genarr, method, [variables["PU"][it0], variables["PU"][it0+1]], [ variables["pt"][it1],variables["pt"][it1+1]], figdir)
                     ptmean = variables["pt"][it1] + variables["pt"][it1+1] 
-                    hresolution.SetPoint(it1, ptmean/2., std/(ptmean/2.))
+                    response_correction = 1 - mu/(ptmean/2.)
+                    if response_correction == 0:
+                        raise RuntimeError("Response was zero: cannot response correct")
+                    elif response_correction < 1:
+                        response_correction = 1 / response_correction
+                    hresolution.SetPoint(it1, ptmean/2., std/(ptmean/2.)*response_correction)# Plot response-corrected curve
                     hresponse.SetPoint(it1,   ptmean/2., 1 - mu/(ptmean/2.))
 
                 l0.AddEntry(hresolution,method)
