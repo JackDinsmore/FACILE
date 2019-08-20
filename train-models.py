@@ -154,6 +154,19 @@ class Model5(mc.ClassModel):
         h = Dense(5, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
+class Model4Exp(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '4layersExp'
+        self.epochs = 11
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(36, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(11, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(3, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
 class Model4(mc.ClassModel):
     def get_outputs(self):
         self.name = '4layers'
@@ -253,7 +266,7 @@ class ModelDumb(mc.ClassModel):
         h = Dense(2, activation='relu')(h)
         return Dense(1, activation='linear', name='output')(h)
 
-MODELS = [Model6, ModelOpen6]#ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
+MODELS = [Model4Exp]#ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
 
 
 
@@ -263,7 +276,6 @@ Nrhs = 2100000
 
 bottom_power = 1
 top_power = 4 # Max batch size: 10,000
-BATCH_SIZES = [a for i in range(bottom_power, top_power) for a in range(10**i, 10**(i+1), 10**i)] + [10**top_power]
 BATCH_SIZES = [ 2 ** i for i in range(8, 17) ]
 
 def get_mu_std(sample):

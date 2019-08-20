@@ -1,12 +1,5 @@
 #!/usr/bin/env python
-from sklearn.metrics import auc
-#import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve
-from sklearn.utils import shuffle
 from keras.models import Model, load_model
-from keras.callbacks import ModelCheckpoint
-#from subtlenet.backend.keras_objects import *
-#from subtlenet.backend.losses import *
 from keras.layers import Dense, BatchNormalization, Input, Dropout, Activation, concatenate, GRU
 from keras.utils import np_utils
 from keras.optimizers import Adam, Nadam, SGD
@@ -15,9 +8,7 @@ from tensorflow.python.framework import graph_util, graph_io
 import os, sys
 import numpy as np
 import pandas as pd
-from collections import namedtuple
 import pickle 
-import ROOT 
 import time
 
 VALSPLIT = 0.2 #0.7
@@ -55,8 +46,11 @@ class Sample(object):
         else:
             return self.idx[:int(VALSPLIT*len(self.idx))]
 
-    def infer(self, model, batch_size):
-        self.Yhat, self.time = model.predict(self.X, batch_size)
+    def infer(self, model, batch_size, limit=None):
+        if limit is None:
+            self.Yhat, self.time = model.predict(self.X, batch_size)
+        else:
+            self.Yhat, self.time = model.predict(self.x[:limit], batch_size)
 
     def standardize(self, mu, std):
         self.X = (self.X - mu) / std
