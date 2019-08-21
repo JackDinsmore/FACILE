@@ -23,7 +23,7 @@ def rootfit(methodarr, genarr, methodname, purange, ptrange, figdir):
     for it,val in enumerate(methodarr):
         tmp.Fill(val - genarr[it])
 
-    q1,q2 = getQuantiles(tmp,[0.02,0.98])
+    q1,q2 = getQuantiles(tmp,[0, 1])#[0.02, 0.98])
     bq1 = tmp.FindBin(q1)
     bq2 = tmp.FindBin(q2)
  
@@ -40,7 +40,7 @@ def rootfit(methodarr, genarr, methodname, purange, ptrange, figdir):
     std = th.GetStdDev()#func.GetParameter(2)
     axis = {"x" : "E_{%s} - E_{gen}"%(methodname), "y" : "Density"}
     title = "%s %.0f < PU < %.0f, %.0f < p_{T} < %.0f"%(methodname,purange[0],purange[1],ptrange[0],ptrange[1])
-    drawTH1([th,func], title, axis, figdir, name)
+    drawTH1([func, th], title, axis, figdir, name)
 
     del tmp; del func; del th
     return mu, std
@@ -51,16 +51,13 @@ def drawTH1(figs, title, axes, figdir, filename, l0 = None):
         try:
             fig.SetStats(0)
         except: pass
-        if i == 0: fig.Draw("ape")
-        else:      fig.Draw("same")
-
-        if fig.GetName() == "Time":
-            print '='*200+"Time graph!"
-            c0.SetLogx()
-        
-        fig.SetTitle(title)
-        fig.GetXaxis().SetTitle(axes["x"])
-        fig.GetYaxis().SetTitle(axes["y"])
+        if i == 0:
+            fig.Draw("ape")
+            #fig.SetTitle(title)
+            #fig.GetXaxis().SetTitle(axes["x"])
+            #fig.GetYaxis().SetTitle(axes["y"])
+        else:
+            fig.Draw("same")
 
     if l0 is not None: l0.Draw() 
 
@@ -73,7 +70,7 @@ def performance(df, times, figdir):
     methods     = ["Mahi","DNN","M3"]
     target      = "genE"
     variables   = {
-        "PU" : [10,35,45,70],
+        "PU" : [30., 60., 80., 110.],
         "pt" : [1.,5.,10.,15.,20.,25.,30.,40.,60.,80.,100.],#1.,5.,7.,10.,13.,15.,17.,20.,30.,40.,50.,60.,70.,80.,90.,100.],
     }
 

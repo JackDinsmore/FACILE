@@ -307,9 +307,10 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=0)
     parser.add_argument('--hidden', type=int, default=4)
     parser.add_argument('--trials', type=int, default=1)
+    parser.add_argument('--datadir', type=str, default='output/')
     args = parser.parse_args()
 
-    basedir = 'output/'
+    basedir = args.datadir#'output/'
     figsdir =  basedir+'plots/'
     modeldir = 'models/evt/v%i/'%(args.version)
 
@@ -320,7 +321,7 @@ if __name__ == '__main__':
 
     print 'Standardizing...'
     mu, std = get_mu_std(sample)
-    sample.standardize(mu, std)
+    #sample.standardize(mu, std)
 
     for Model in MODELS:
         model = Model(n_inputs)
@@ -356,21 +357,21 @@ if __name__ == '__main__':
             shape = (sample.Y['genE'].values.shape[0],1)
             print shape
             methods = {
-                "genE": sample.Y['genE'].values.reshape(Nrhs,1),
+                "genE": sample.Y['genE'].values.reshape(-1,1),
                 "DNN" : sample.Yhat,
-                "Mahi": sample.Y['energy'].values.reshape(Nrhs,1),
-                "M0"  : sample.Y['eraw'].values.reshape(Nrhs,1),
-                "M3"  : sample.Y['em3'].values.reshape(Nrhs,1)
+                "Mahi": sample.Y['energy'].values.reshape(-1,1),
+                "M0"  : sample.Y['eraw'].values.reshape(-1,1),
+                "M3"  : sample.Y['em3'].values.reshape(-1,1)
             }
 
             #print sample.Y['energy'].values.reshape(Nrhs,1)[0:10]
             #print sample.Y['genE'].values.reshape(Nrhs,1)[0:10]
 
             binning = {
-                "ieta" : sample.kin['ieta'].values.reshape(Nrhs,1),
-                "iphi" : sample.kin['iphi'].values.reshape(Nrhs,1),
-                "PU"   : sample.kin['PU'].values.reshape(Nrhs,1),
-                "pt"   : sample.kin['pt'].values.reshape(Nrhs,1)
+                "ieta" : sample.kin['ieta'].values.reshape(-1,1),
+                "iphi" : sample.kin['iphi'].values.reshape(-1,1),
+                "PU"   : sample.kin['PU'].values.reshape(-1,1),
+                "pt"   : sample.kin['pt'].values.reshape(-1,1)
             }
 
             times = {
