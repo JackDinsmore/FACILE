@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--filename', help='Provide a filename to read')
 parser.add_argument('--outdir',   help='Provide an output directory')
-#parser.add_argument('--branches', help='If you want, provide some branches to filter.', default='')
+parser.add_argument('--mahi', action='store_true', help='Set if you wish to include train to match mahi')
 
 args = parser.parse_args()
 
@@ -21,7 +21,6 @@ inputs = ['PU','pt','ieta','iphi','gain', 'inPedAvg', 'depth',
           #'inNoisePhoto[5]','inNoisePhoto[6]','inNoisePhoto[7]',]
 
 x_branches = [(inp) for inp in inputs]
-#x_branches = [('PU'),('depth'),('pt'),('ieta'),('gain'),('iphi'),('raw[0]'),('raw[1]'),('raw[2]'),('raw[3]'),('raw[4]'),('raw[5]'),('raw[6]'),('raw[7]')('ped[0]'),('ped[1]'),('ped[2]'),('ped[3]'),('ped[4]'),('ped[5]'),('ped[6]'),('ped[7]')]
 y_branches = ['genE','energy','em3','eraw']
 
 def save(name, arr):
@@ -42,9 +41,17 @@ if __name__ == '__main__':
     Yarr = np.zeros(shape=(Ytmp.shape[0],len(y_branches)))
  
     #it comes out of load_root in an annoying way
-    for it in range(Xtmp.shape[0]):
-        Xarr[it] = np.array(list(Xtmp[it]))
-        Yarr[it] = np.array(list(Ytmp[it]))
+    if args.mahi:
+        for it in range(Xtmp.shape[0]):
+            for index, item in enumerate(Xtmp[it]):
+                Xarr[it][index] = item
+                Yarr[it][index] = item
+            Xarr[it][-1] = 0 # Make model match mahi
+            Yarr[it][-1] = 0 # Make model match mahi
+    else:
+        for it in range(Xtmp.shape[0]):
+            Xarr[it] = np.array(list(Xtmp[it]))
+            Yarr[it] = np.array(list(Ytmp[it]))
 
     Xarr = pd.DataFrame(Xarr[:,:],columns=x_branches)
     Yarr = pd.DataFrame(Yarr[:,:],columns=y_branches)

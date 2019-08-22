@@ -274,8 +274,6 @@ VALSPLIT = 0.2
 np.random.seed(5)
 Nrhs = 2100000
 
-bottom_power = 1
-top_power = 4 # Max batch size: 10,000
 BATCH_SIZES = [ 2 ** i for i in range(8, 17) ]
 
 def get_mu_std(sample):

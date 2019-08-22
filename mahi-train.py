@@ -1,4 +1,4 @@
-import model_class as mc
+import mahi_model as mc
 
 from keras.models import Model, load_model
 from keras.callbacks import ModelCheckpoint
@@ -32,128 +32,6 @@ class ModelDefault(mc.ClassModel):
         h = Dense(5, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
-class ModelOpen6(mc.ClassModel):
-    def get_outputs(self):
-        self.name = 'open6'
-        self.epochs = 10
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(100, activation = 'relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(50, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(20, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(10, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(5, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-
-class ModelHigherMomentumDefault(mc.ClassModel):
-    def get_outputs(self):
-        self.name = 'highMomentumDefault'
-        self.epochs = 11
-        h = self.inputs
-        h = BatchNormalization()(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        h = BatchNormalization()(h)
-        h = Dense(100, activation = 'relu')(h)
-        h = BatchNormalization()(h)
-        h = Dense(50, activation = 'relu')(h)
-        h = BatchNormalization()(h)
-        h = Dense(20, activation = 'relu')(h)
-        h = BatchNormalization()(h)
-        h = Dense(10, activation = 'relu')(h)
-        h = BatchNormalization()(h)
-        h = Dense(5, activation = 'relu')(h)
-        return Dense(1, activation='linear', name='output')(h)
-
-class ModelShrinkDefault(mc.ClassModel):
-    def get_outputs(self):
-        self.name = 'shrinkDefault'
-        self.epochs = 11
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(50, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(25, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(10, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(5, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(3, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class ModelShrink7(mc.ClassModel):
-    def get_outputs(self):
-        self.name = 'shrink7'
-        self.epochs = 11
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(50, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(25, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(10, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(5, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model7(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '7layers'
-        self.epochs=11
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(100, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(50, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(15, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(5, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model6(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '6layers'
-        self.epochs = 11
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(100, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(50, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(20, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(5, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model5(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '5layers'
-        self.epochs = 11
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(75, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(25, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(5, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
 class Model4Exp(mc.ClassModel):
     def get_outputs(self):
         self.name = '4layersExp'
@@ -167,106 +45,7 @@ class Model4Exp(mc.ClassModel):
         h = Dense(3, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
-class Model4(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '4layers'
-        self.epochs = 11
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(50, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(7, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model4LowMomentum(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '4layersLowMomentum'
-        self.epochs = 11
-        h = self.inputs
-        h = BatchNormalization(momentum=0.1)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.1)(h)
-        h = Dense(50, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.1)(h)
-        h = Dense(7, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model3(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '3layers'
-        self.epochs = 10
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(50, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model3Narrow(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '3layersNarrow'
-        self.epochs = 10
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(18, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model3Wide(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '3layersWide'
-        self.epochs = 10
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(100, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model3HighMomentum(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '3layersHighMomentum'
-        self.epochs = 10
-        h = self.inputs
-        h = BatchNormalization()(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        norm = BatchNormalization()(h)
-        h = Dense(50, activation = 'relu')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model3Tanh(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '3layersTanh'
-        self.epochs = 10
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='tanh')(h)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(50, activation = 'tanh')(norm)
-        return Dense(1, activation='linear', name='output')(h)
-
-class Model2(mc.ClassModel):
-    def get_outputs(self):
-        self.name = '2layers'
-        self.epochs = 13
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
-        return Dense(1, activation='linear', name='output')(h)
-
-class ModelDumb(mc.ClassModel):
-    def get_outputs(self):
-        self.name = 'dumb'
-        self.epochs = 20
-        h = self.inputs
-        h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(2, activation='relu')(h)
-        return Dense(1, activation='linear', name='output')(h)
-
-MODELS = [Model4Exp]#ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
+MODELS = [Model4Exp]
 
 
 
@@ -274,8 +53,6 @@ VALSPLIT = 0.2
 np.random.seed(5)
 Nrhs = 2100000
 
-bottom_power = 1
-top_power = 4 # Max batch size: 10,000
 BATCH_SIZES = [ 2 ** i for i in range(8, 17) ]
 
 def get_mu_std(sample):
@@ -284,15 +61,12 @@ def get_mu_std(sample):
     return mu, std
 
 def savepickle(methods, binning, times, modeldir):
-    #print [arr for _, arr in methods.iteritems()]
-    #print [arr.shape for _, arr in methods.iteritems()]
     a = np.concatenate([arr for _, arr in methods.iteritems()] + 
                        [arr for _, arr in binning.iteritems()], axis=1)
-    #print a
 
     df = pd.DataFrame(data=a,columns=[name for name, _ in methods.iteritems()] + 
                                      [name for name, _ in binning.iteritems()])
-    #print df
+
     df.to_pickle(modeldir+"results.pkl")
     with open(modeldir+'times.pkl', 'wb') as handle:
         pickle.dump(times, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -303,9 +77,9 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--plot', action='store_true')
+    parser.add_argument('--mahi', action='store_true')
     parser.add_argument('--version', type=int, default=0)
     parser.add_argument('--epochs', type=int, default=0)
-    parser.add_argument('--hidden', type=int, default=4)
     parser.add_argument('--trials', type=int, default=1)
     parser.add_argument('--datadir', type=str, default='output/')
     args = parser.parse_args()
@@ -330,9 +104,9 @@ if __name__ == '__main__':
         if args.train:
             print 'Training...'
             if args.epochs == 0:
-                model.train(sample)
+                model.train(sample, mahi=args.mahi)
             else:
-                model.train(sample, args.epochs)
+                model.train(sample, epochs=args.epochs, mahi=args.mahi)
             model.save_as_keras(modeldir+model.name+'/weights.h5')
             model.save_as_tf(modeldir+model.name+'/graph.pb')
         else:
