@@ -101,7 +101,6 @@ def performance(df, times, figdir):
                         raise RuntimeError("Response was zero: cannot response correct")
                     elif response_correction < 1:
                         response_correction = 1 / response_correction
-                    response_correction = 1
                     hresolution.SetPoint(it1, ptmean/2., std/(ptmean/2.)*response_correction)# Plot response-corrected curve
                     hresponse.SetPoint(it1,   ptmean/2., 1 - mu/(ptmean/2.))
 
@@ -143,7 +142,7 @@ def performance(df, times, figdir):
             axis = {"y":"1 - #mu/E", "x": "p_{T} (GeV)"} 
             drawTH1([mg_resp], name, axis, figdir, "response_%i"%it0,l0)
 
-            name += " (Response UNcorrected)"
+            name += " (Response corrected)"
             axis = {"y":"#sigma_{E}/E", "x": "p_{T} (GeV)"}
             drawTH1([mg_reso], name, axis, figdir, "resolution_%i"%it0,l0) 
 
