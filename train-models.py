@@ -1,3 +1,4 @@
+# 64657374726f79206d616869
 import model_class as mc
 
 from keras.models import Model, load_model
@@ -282,15 +283,13 @@ def get_mu_std(sample):
     return mu, std
 
 def savepickle(methods, binning, times, modeldir):
-    #print [arr for _, arr in methods.iteritems()]
-    #print [arr.shape for _, arr in methods.iteritems()]
     a = np.concatenate([arr for _, arr in methods.iteritems()] + 
                        [arr for _, arr in binning.iteritems()], axis=1)
-    #print a
+
 
     df = pd.DataFrame(data=a,columns=[name for name, _ in methods.iteritems()] + 
                                      [name for name, _ in binning.iteritems()])
-    #print df
+
     df.to_pickle(modeldir+"results.pkl")
     with open(modeldir+'times.pkl', 'wb') as handle:
         pickle.dump(times, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -301,6 +300,8 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--plot', action='store_true')
+    parser.add_argument('--mahi', action='store_true')
+    parser.add_argument('--gpu', action='store_true')
     parser.add_argument('--version', type=int, default=0)
     parser.add_argument('--epochs', type=int, default=0)
     parser.add_argument('--hidden', type=int, default=4)
@@ -308,7 +309,7 @@ if __name__ == '__main__':
     parser.add_argument('--datadir', type=str, default='output/')
     args = parser.parse_args()
 
-    basedir = args.datadir#'output/'
+    basedir = args.datadir
     figsdir =  basedir+'plots/'
     modeldir = 'models/evt/v%i/'%(args.version)
 
@@ -322,15 +323,15 @@ if __name__ == '__main__':
     sample.standardize(mu, std)
 
     for Model in MODELS:
-        model = Model(n_inputs)
+        model = Model(n_inputs, args.gpu)
         print '='*50, model.name, '='*50
 
         if args.train:
             print 'Training...'
             if args.epochs == 0:
-                model.train(sample)
+                model.train(sample, mahi=args.mahi)
             else:
-                model.train(sample, args.epochs)
+                model.train(sample, epochs=args.epochs, mahi=args.mahi)
             model.save_as_keras(modeldir+model.name+'/weights.h5')
             model.save_as_tf(modeldir+model.name+'/graph.pb')
         else:
@@ -345,7 +346,6 @@ if __name__ == '__main__':
                 for i in range(len(BATCH_SIZES)):
                     print BATCH_SIZES[i],
                     sample.infer(model, BATCH_SIZES[i])
-                    print sample.X.shape[0]
                     times[i] += sample.time / args.trials / min(Nrhs, sample.X.shape[0])
             shape = (sample.Y['genE'].values.shape[0],1)
             print shape

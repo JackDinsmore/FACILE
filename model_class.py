@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# 64657374726f79206d616869
 from keras.models import Model, load_model
 from keras.layers import Dense, BatchNormalization, Input, Dropout, Activation, concatenate, GRU
 from keras.utils import np_utils
@@ -10,6 +11,7 @@ import numpy as np
 import pandas as pd
 import pickle 
 import time
+import tensorflow as tf
 
 VALSPLIT = 0.2 #0.7
 np.random.seed(5)
@@ -57,14 +59,19 @@ class Sample(object):
 
 ### Model class
 class ClassModel(object):
-    def __init__(self, n_inputs):
+    def __init__(self, n_inputs, gpu):
         self._hidden = 0
         self.n_inputs = n_inputs
         self.n_targets = 1
 
         self.inputs = Input(shape=(n_inputs,), name='input')
 
-        self.outputs = self.get_outputs()
+        if gpu:
+            with tf.device('/gpu:0'):
+                self.outputs = self.get_outputs()
+        else:
+            with tf.device('/cpu:0'):
+                self.outputs = self.get_outputs()
 
         self.model = Model(inputs=self.inputs, outputs=self.outputs)
         self.model.compile(optimizer=Adam(), loss='mse')
@@ -77,12 +84,16 @@ class ClassModel(object):
         self.epochs = 20
         return None
 
-    def train(self, sample, num_epochs=0):
+    def train(self, sample, num_epochs=0, mahi=False):
         if num_epochs == 0: num_epochs = self.epochs
         tX = sample.X.values[sample.tidx]
         vX = sample.X.values[sample.vidx]
-        tY = sample.Y[['genE']].values[sample.tidx]
-        vY = sample.Y[['genE']].values[sample.vidx] 
+        if mahi:
+            tY = sample.Y[['energy']].values[sample.tidx]#############################################################################################################
+            vY = sample.Y[['energy']].values[sample.vidx]
+        else:
+            tY = sample.Y[['genE']].values[sample.tidx]
+            vY = sample.Y[['genE']].values[sample.vidx] 
 
         history = self.model.fit(tX, tY, 
                                  batch_size=2024, epochs=num_epochs, shuffle=True,
