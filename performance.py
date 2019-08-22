@@ -72,13 +72,19 @@ def performance(df):
     methods     = ["Mahi","DNN","M3","M0"]
     target      = "genE"
     variables   = {
-		   "PU" : [10,30,50,70],
-                   "pt" : [1.,5.,7.,10.,13.,15.,17.,20.,30.,40.,50.,60.,70.,80.,90.,100.],
+		   "PU" : [30,60,80,110],
+                   "pt" : [1.,5.,10.,15.,20.,30.,40.,50.,60.,70.,80.,100.,],
 	          }
 
     if len(variables) == 2:
 
+ 
+       
+       if 'HE' in args.pickle: ietal = [17,30]
+       elif 'HB' in args.pickle: ietal = [0,17]
+       for ietait, ieta in enumerate(ietal):
 
+          if ietait == len(ietal) - 1: break
           for it0 in range(len(variables["PU"])-1):
 
              mg_resp  = ROOT.TMultiGraph()
@@ -93,9 +99,10 @@ def performance(df):
 
               for it1 in range(len(variables["pt"])-1):
 
-                tmp = df[(df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][[method]] 
+
+                tmp = df[(abs(df["ieta"]) > ietal[ietait]) & (abs(df["ieta"]) < ietal[ietait+1]) & (df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][[method]] 
                 tmparr = tmp.values
-                genarr = df[(df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][['genE']].values 
+                genarr = df[(abs(df["ieta"]) > ietal[ietait]) & (abs(df["ieta"]) < ietal[ietait+1]) & (df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["pt"] > variables["pt"][it1]) & (df["pt"] < variables["pt"][it1+1]) ][['genE']].values 
                 mu, std = rootfit(tmparr,genarr, method, [variables["PU"][it0], variables["PU"][it0+1]], [ variables["pt"][it1],variables["pt"][it1+1]])
                 ptmean = variables["pt"][it1] + variables["pt"][it1+1] 
                 hresolution.SetPoint(it1, ptmean/2., std/(ptmean/2.))
@@ -110,17 +117,17 @@ def performance(df):
               hresponse.SetMarkerStyle(col+1)
               hresponse.SetMarkerColor(col+1)
               hresponse.SetName(method)
-              print "NAME2", hresolution.GetName()
               mg_resp.Add(hresponse)
               mg_reso.Add(hresolution)
               del hresolution; del hresponse
 
-             name = "%.0f < PU < %.0f"%(variables["PU"][it0],variables["PU"][it0+1])
+             name = "%.0f < PU < %.0f, %i < ieta < %i"%(variables["PU"][it0],variables["PU"][it0+1], ietal[ietait], ietal[ietait+1])
              axis = {"y":"#sigma_{E}/E", "x": "p_{T} (GeV)"}
-             drawTH1([mg_reso], name, axis, "resolution_%i"%it0,l0) 
+             drawTH1([mg_reso], name, axis, "resolution_%iPU_%iIETA"%(it0,ietait),l0) 
              
              axis = {"y":"1 - #mu/E", "x": "p_{T} (GeV)"} 
-             drawTH1([mg_resp], name, axis, "response_%i"%it0,l0)
+             drawTH1([mg_resp], name, axis, "response_%iPU_%iIETA"%(it0,ietait),l0)
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser

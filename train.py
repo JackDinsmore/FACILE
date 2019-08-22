@@ -21,7 +21,7 @@ import ROOT
 
 VALSPLIT = 0.2 #0.7
 np.random.seed(5)
-Nrhs = 2100000
+Nrhs = 180000
 
 def _make_parent(path):
     os.system('mkdir -p %s'%('/'.join(path.split('/')[:-1])))
@@ -61,19 +61,19 @@ def savepickle(methods,binning,modeldir):
 
     df = pd.DataFrame(data=a,columns=[name for name, _ in methods.iteritems()] + [name for name, _ in binning.iteritems()])
     print df
-    df.to_pickle(modeldir+"results.pkl")
+    df.to_pickle(modeldir+"results_%s.pkl"%args.region)
 
 ### Sample class
 class Sample(object):
     def __init__(self, name, base):
         self.name = name 
 
-        self.X = np.load('%s/%s.pkl'%(base,'X'),allow_pickle=True)[:Nrhs]
+        self.X = np.load('%s/%s_%s.pkl'%(base,'X',args.region),allow_pickle=True)[:Nrhs]
         self.X.drop(['PU','pt'],1,inplace=True)
-        self.Y = np.load('%s/%s.pkl'%(base,'Y'),allow_pickle=True)[:Nrhs]
+        self.Y = np.load('%s/%s_%s.pkl'%(base,'Y',args.region),allow_pickle=True)[:Nrhs]
 
         print self.X.shape, self.Y.shape
-        self.kin = np.load('%s/%s.pkl'%(base,'X'),allow_pickle=True)[:Nrhs][['PU','ieta','iphi','pt']]
+        self.kin = np.load('%s/%s_%s.pkl'%(base,'X',args.region),allow_pickle=True)[:Nrhs][['PU','ieta','iphi','pt']]
 
         self.idx = np.random.permutation(self.X.shape[0])
 
@@ -106,21 +106,13 @@ class ClassModel(object):
         self.n_targets = 1
 
         self.inputs = Input(shape=(n_inputs,), name='input')
-
         h = self.inputs
         h = BatchNormalization(momentum=0.6)(h)
-        h = Dense(n_inputs, activation='relu')(h)
+        h = Dense(36, activation='relu')(h)
         norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(100, activation = 'relu')(norm)
+        h = Dense(11, activation = 'relu')(norm)
         norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(50, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(20, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(10, activation = 'relu')(norm)
-        norm = BatchNormalization(momentum=0.6)(h)
-        h = Dense(5, activation = 'relu')(norm)
-
+        h = Dense(3, activation = 'relu')(norm)
         self.outputs = Dense(1, activation='linear', name='output')(h)
 
         self.model = Model(inputs=self.inputs, outputs=self.outputs)
@@ -136,7 +128,7 @@ class ClassModel(object):
         vY = sample.Y[['genE']].values[sample.vidx] 
 
         history = self.model.fit(tX, tY, 
-                                 batch_size=2024, epochs=20, shuffle=True,
+                                 batch_size=1024, epochs=40, shuffle=True,
                                  validation_data=(vX, vY))
 
         with open('history.log','w') as flog:
@@ -173,33 +165,33 @@ class ClassModel(object):
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
+    parser.add_argument('--region', type=str, default='HE')
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--plot', action='store_true')
     parser.add_argument('--version', type=int, default=0)
     parser.add_argument('--hidden', type=int, default=4)
     args = parser.parse_args()
 
-    basedir = 'output/'
+    modeldir = 'models/v%i/'%(args.version)
+    basedir = modeldir
     figsdir =  basedir+'plots/'
-    modeldir = 'models/evt/v%i/'%(args.version)
-
     sample = Sample("RecHits", basedir)
     n_inputs = sample.X.shape[1]
 
     print 'Standardizing...'
     mu, std = get_mu_std(sample)
-    sample.standardize(mu, std)
+    #sample.standardize(mu, std)
 
     model = ClassModel(n_inputs)
 
     if args.train:
         print 'Training...'
         model.train(sample)
-        model.save_as_keras(modeldir+'/weights.h5')
-        model.save_as_tf(modeldir+'/graph.pb')
+        model.save_as_keras(modeldir+'/weights_%s.h5'%args.region)
+        model.save_as_tf(modeldir+'/graph_%s.pb'%args.region)
     else:
         print 'Loading...'
-        model.load_model(modeldir+'weights.h5')
+        model.load_model(modeldir+'weights_%s.h5'%args.region)
 
     if args.plot:
         print 'Inferring...'
