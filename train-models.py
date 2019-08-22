@@ -1,3 +1,4 @@
+# 64657374726f79206d616869
 import model_class as mc
 
 from keras.models import Model, load_model
@@ -274,8 +275,6 @@ VALSPLIT = 0.2
 np.random.seed(5)
 Nrhs = 2100000
 
-bottom_power = 1
-top_power = 4 # Max batch size: 10,000
 BATCH_SIZES = [ 2 ** i for i in range(8, 17) ]
 
 def get_mu_std(sample):
@@ -284,15 +283,13 @@ def get_mu_std(sample):
     return mu, std
 
 def savepickle(methods, binning, times, modeldir):
-    #print [arr for _, arr in methods.iteritems()]
-    #print [arr.shape for _, arr in methods.iteritems()]
     a = np.concatenate([arr for _, arr in methods.iteritems()] + 
                        [arr for _, arr in binning.iteritems()], axis=1)
-    #print a
+
 
     df = pd.DataFrame(data=a,columns=[name for name, _ in methods.iteritems()] + 
                                      [name for name, _ in binning.iteritems()])
-    #print df
+
     df.to_pickle(modeldir+"results.pkl")
     with open(modeldir+'times.pkl', 'wb') as handle:
         pickle.dump(times, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -303,6 +300,8 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--plot', action='store_true')
+    parser.add_argument('--mahi', action='store_true')
+    parser.add_argument('--gpu', action='store_true')
     parser.add_argument('--version', type=int, default=0)
     parser.add_argument('--epochs', type=int, default=0)
     parser.add_argument('--hidden', type=int, default=4)
@@ -310,7 +309,7 @@ if __name__ == '__main__':
     parser.add_argument('--datadir', type=str, default='output/')
     args = parser.parse_args()
 
-    basedir = args.datadir#'output/'
+    basedir = args.datadir
     figsdir =  basedir+'plots/'
     modeldir = 'models/evt/v%i/'%(args.version)
 
@@ -321,18 +320,18 @@ if __name__ == '__main__':
 
     print 'Standardizing...'
     mu, std = get_mu_std(sample)
-    #sample.standardize(mu, std)
+    sample.standardize(mu, std)
 
     for Model in MODELS:
-        model = Model(n_inputs)
+        model = Model(n_inputs, args.gpu)
         print '='*50, model.name, '='*50
 
         if args.train:
             print 'Training...'
             if args.epochs == 0:
-                model.train(sample)
+                model.train(sample, mahi=args.mahi)
             else:
-                model.train(sample, args.epochs)
+                model.train(sample, epochs=args.epochs, mahi=args.mahi)
             model.save_as_keras(modeldir+model.name+'/weights.h5')
             model.save_as_tf(modeldir+model.name+'/graph.pb')
         else:
@@ -347,13 +346,7 @@ if __name__ == '__main__':
                 for i in range(len(BATCH_SIZES)):
                     print BATCH_SIZES[i],
                     sample.infer(model, BATCH_SIZES[i])
-                    times[i] += sample.time / args.trials / Nrhs
-            #print sample.X.shape
-            #print sample.Yhat.shape
-            #print sample.Y['energy'].shape
-            #print sample.Y['eraw'].shape
-            #print sample.Y['em3'].shape
-
+                    times[i] += sample.time / args.trials / min(Nrhs, sample.X.shape[0])
             shape = (sample.Y['genE'].values.shape[0],1)
             print shape
             methods = {
@@ -363,9 +356,6 @@ if __name__ == '__main__':
                 "M0"  : sample.Y['eraw'].values.reshape(-1,1),
                 "M3"  : sample.Y['em3'].values.reshape(-1,1)
             }
-
-            #print sample.Y['energy'].values.reshape(Nrhs,1)[0:10]
-            #print sample.Y['genE'].values.reshape(Nrhs,1)[0:10]
 
             binning = {
                 "ieta" : sample.kin['ieta'].values.reshape(-1,1),
