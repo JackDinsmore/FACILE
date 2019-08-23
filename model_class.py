@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# 64657374726f79206d616869
 from keras.models import Model, load_model
 from keras.layers import Dense, BatchNormalization, Input, Dropout, Activation, concatenate, GRU
 from keras.utils import np_utils

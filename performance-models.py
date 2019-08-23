@@ -68,7 +68,7 @@ def drawTH1(figs, title, axes, figdir, filename, l0 = None):
     
 
 def performance(df, times, figdir):
-    #define methods to plot, target variable, and binning variables
+    # define methods to plot, target variable, and binning variables
     methods     = ["Mahi","DNN","M3"]
     target      = "genE"
     variables   = {

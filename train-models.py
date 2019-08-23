@@ -13,7 +13,7 @@ from collections import namedtuple
 import pickle 
 import ROOT 
 
-
+# All the models I tested. You can delete most of them if you don't need them anymore.
 class ModelDefaultDropoutLow(mc.ClassModel):
     def get_outputs(self):
         self.name = 'defaultDropLow'

@@ -13,7 +13,7 @@ parser.add_argument('--outdir',   help='Provide an output directory')
 
 args = parser.parse_args()
 
-#writing branches as list of tuples seems like an easy way to format the output
+# writing branches as list of tuples seems like an easy way to format the output
 inputs = ['PU','depth','pt','ieta','iphi','gain','inPedAvg', 'lambda', 'darkCurrent',
           'raw[0]','raw[1]','raw[2]','raw[3]','raw[4]','raw[5]','raw[6]','raw[7]',]
           #'ped[0]','ped[1]','ped[2]','ped[3]','ped[4]','ped[5]','ped[6]','ped[7]',

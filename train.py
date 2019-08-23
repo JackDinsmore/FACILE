@@ -5,8 +5,7 @@ from sklearn.metrics import roc_curve
 from sklearn.utils import shuffle
 from keras.models import Model, load_model
 from keras.callbacks import ModelCheckpoint
-#from subtlenet.backend.keras_objects import *
-#from subtlenet.backend.losses import *
+
 from keras.layers import Dense, BatchNormalization, Input, Dropout, Activation, concatenate, GRU
 from keras.utils import np_utils
 from keras.optimizers import Adam, Nadam, SGD

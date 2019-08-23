@@ -28,7 +28,7 @@ def rootfit(methodarr, genarr, methodname, purange, ptrange):
     bq1 = tmp.FindBin(q1)
     bq2 = tmp.FindBin(q2)
  
-    #only fit 2nd to 98th quantile
+    # only fit 2nd to 98th quantile
     th = ROOT.TH1F(name,name,bq2 - bq1, q1, q2)
     for it0,it1 in enumerate(range(bq1, bq2)):
        th.SetBinContent(it0+1,tmp.GetBinContent(it1))
