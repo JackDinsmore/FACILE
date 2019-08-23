@@ -22,16 +22,20 @@ def _make_parent(path):
 
 ### Sample class
 class Sample(object):
-    def __init__(self, name, base):
+    def __init__(self, name, base, region):
         self.name = name 
 
-        self.X = np.load('%s/%s.pkl'%(base,'X'),allow_pickle=True)[:Nrhs]
-        self.X.drop(['PU','pt'],1,inplace=True)
-        self.Y = np.load('%s/%s.pkl'%(base,'Y'),allow_pickle=True)[:Nrhs]
+        if region != '':
+            self.X = np.load('%s/%s_%s.pkl'%(base,'X', region),allow_pickle=True)[:Nrhs]
+            self.Y = np.load('%s/%s_%s.pkl'%(base,'Y', region),allow_pickle=True)[:Nrhs]
+            self.kin = np.load('%s/%s_%s.pkl'%(base,'X', region),allow_pickle=True)[:Nrhs][['PU','ieta','iphi','pt']]
+        else:
+            self.X = np.load('%s/%s.pkl'%(base,'X'),allow_pickle=True)[:Nrhs]
+            self.Y = np.load('%s/%s.pkl'%(base,'Y'),allow_pickle=True)[:Nrhs]
+            self.kin = np.load('%s/%s.pkl'%(base,'X'),allow_pickle=True)[:Nrhs][['PU','ieta','iphi','pt']]
 
         print self.X.shape, self.Y.shape
-        self.kin = np.load('%s/%s.pkl'%(base,'X'),allow_pickle=True)[:Nrhs][['PU','ieta','iphi','pt']]
-
+        self.X.drop(['PU','pt'],1,inplace=True)
         self.idx = np.random.permutation(self.X.shape[0])
 
     @property
