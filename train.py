@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# 64657374726f79206d616869
 from sklearn.metrics import auc
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve
