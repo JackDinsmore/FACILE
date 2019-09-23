@@ -24,7 +24,7 @@ from keras.utils.vis_utils import plot_model
 
 VALSPLIT = 0.3 #0.7	
 np.random.seed(4)
-Nrhs = 1200000
+Nrhs = 600000
 
 def _make_parent(path):
     os.system('mkdir -p %s'%('/'.join(path.split('/')[:-1])))
@@ -77,7 +77,7 @@ class Sample(object):
         self.Y = np.load('%s/%s_%s%s.pkl'%(base,'Y',args.region,args.inferencefile),allow_pickle=True)[:Nrhs]
 
 
-        self.Y['genE'][self.X['depth'] == 1.] *= 5./12. # self.Y['genE'][self.X['depth'] == 1.]*4./12.
+        #self.Y['genE'][self.X['depth'] == 1.] *= 0.5 # self.Y['genE'][self.X['depth'] == 1.]*4./12.
 
        
 
@@ -148,7 +148,7 @@ class ClassModel(object):
          self.outputs = Dense(1, activation='linear', name='output')(h)
 
         self.model = Model(inputs=self.inputs, outputs=self.outputs)
-        self.model.compile(optimizer=Adam(), loss='mean_absolute_percentage_error')
+        self.model.compile(optimizer=Adam(), loss='mean_squared_error')
         self.es = EarlyStopping(monitor='loss', mode='min', verbose=1, patience=5)
         #mc = ModelCheckpoint('best_model.h5', monitor='val_acc', mode='max', verbose=1, save_best_only=True)
 
