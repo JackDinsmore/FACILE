@@ -11,13 +11,14 @@ parser.add_argument('--HB', dest='HB',action='store_true', default=False, help='
 parser.add_argument('--filename', help='Provide a filename to read')
 parser.add_argument('--outdir',   help='Provide an output directory')
 parser.add_argument('--mahi', action='store_true', help='Set if you wish to include train to match mahi')
+parser.add_argument('--inferencefile',   help='Provide an output directory')
 
 args = parser.parse_args()
 
 #writing branches as list of tuples seems like an easy way to format the output
-inputs = ['PU','depth','pt','ieta','iphi','gain','lambda','darkCurrent','inPedAvg',
+inputs = ['PU','depth','pt','ieta','iphi','gain',#'lambda',#'darkCurrent',#'inPedAvg',
           'raw[0]','raw[1]','raw[2]','raw[3]','raw[4]','raw[5]','raw[6]','raw[7]',]
-          #'ped[0]','ped[1]','ped[2]','ped[3]','ped[4]','ped[5]','ped[6]','ped[7]',
+          #'ped[0]','ped[1]','ped[2]','ped[3]','ped[4]','ped[5]','ped[6]','ped[7]',]
           #'inNoiseADC[0]','inNoiseADC[1]','inNoiseADC[2]','inNoiseADC[3]','inNoiseADC[4]',
           #'inNoiseADC[5]','inNoiseADC[6]','inNoiseADC[7]',]
 
@@ -35,8 +36,8 @@ def load_root(filename, branches=None):
     rfile = ROOT.TFile.Open(filename)
     rtree = rfile.Get("Events")
 
-    if args.HE:    return root_numpy.tree2array(rtree, selection='abs(ieta) > 17', branches=branches)
-    elif args.HB:  return root_numpy.tree2array(rtree, selection='abs(ieta) < 17', branches=branches)
+    if args.HE:    return root_numpy.tree2array(rtree, selection='abs(ieta) > 15', branches=branches)
+    elif args.HB:  return root_numpy.tree2array(rtree, selection='abs(ieta) <=  15', branches=branches)
 
 if __name__ == '__main__':
 
@@ -59,8 +60,8 @@ if __name__ == '__main__':
     Yarr = pd.DataFrame(Yarr[:,:],columns=y_branches)
 
     if args.HE:
-      save('X_HE',Xarr)
-      save('Y_HE',Yarr)
+      save('X_HE%s'%args.inferencefile,Xarr)
+      save('Y_HE%s'%args.inferencefile,Yarr)
     elif args.HB:
-      save('X_HB',Xarr)
-      save('Y_HB',Yarr)
+      save('X_HB%s'%args.inferencefile,Xarr)
+      save('Y_HB%s'%args.inferencefile,Yarr)
