@@ -1,9 +1,8 @@
-# 64657374726f79206d616869
 import model_class as mc
 
 from keras.models import Model, load_model
 from keras.callbacks import ModelCheckpoint
-from keras.layers import Dense, BatchNormalization, Input, Dropout, Activation, concatenate, GRU
+from keras.layers import Dense, BatchNormalization, Input, Dropout, Activation, concatenate, GRU, Dropout
 
 import keras.backend as K
 from tensorflow.python.framework import graph_util, graph_io
@@ -13,6 +12,87 @@ import pandas as pd
 from collections import namedtuple
 import pickle 
 import ROOT 
+
+# All the models I tested. You can delete most of them if you don't need them anymore.
+class ModelDefaultDropoutLow(mc.ClassModel):
+    def get_outputs(self):
+        self.name = 'defaultDropLow'
+        self.epochs = 11
+        RATE=0.2
+        h = self.inputs
+        h = Dropout(rate=RATE)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(100, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(20, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(10, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(5, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class ModelDefaultDropoutLLow(mc.ClassModel):
+    def get_outputs(self):
+        self.name = 'defaultDropLLow'
+        self.epochs = 11
+        RATE=0.05
+        h = self.inputs
+        h = Dropout(rate=RATE)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(100, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(20, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(10, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(5, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class ModelDefaultDropoutLLLow(mc.ClassModel):
+    def get_outputs(self):
+        self.name = 'defaultDropHighLLLow'
+        self.epochs = 11
+        RATE=0.01
+        h = self.inputs
+        h = Dropout(rate=RATE)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(100, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(20, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(10, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(5, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class ModelDefaultDropoutLLLLow(mc.ClassModel):
+    def get_outputs(self):
+        self.name = 'defaultDropLLLLow'
+        self.epochs = 11
+        RATE=0.001
+        h = self.inputs
+        h = Dropout(rate=RATE)(h)
+        h = Dense(n_inputs, activation='relu')(h)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(100, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(50, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(20, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(10, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(5, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
 
 class ModelDefault(mc.ClassModel):
     def get_outputs(self):
@@ -168,6 +248,75 @@ class Model4Exp(mc.ClassModel):
         h = Dense(3, activation = 'relu')(norm)
         return Dense(1, activation='linear', name='output')(h)
 
+class Model4ExpLow(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '4layersExpLow'
+        RATE=0.05
+        self.epochs = 11
+        h = self.inputs
+        h = Dropout(rate=RATE)(h)
+        h = Dense(36, activation='relu')(h)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(11, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(3, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model4ExpLLow(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '4layersExpLLow'
+        RATE=0.01
+        self.epochs = 11
+        h = self.inputs
+        h = Dropout(rate=RATE)(h)
+        h = Dense(36, activation='relu')(h)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(11, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(3, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model4ExpNaught(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '4layersExpNaught'
+        RATE=0
+        self.epochs = 11
+        h = self.inputs
+        h = Dropout(rate=RATE)(h)
+        h = Dense(36, activation='relu')(h)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(11, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(3, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model4ExpLLLow(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '4layersExpLLLow'
+        RATE=0.001
+        self.epochs = 11
+        h = self.inputs
+        h = Dropout(rate=RATE)(h)
+        h = Dense(36, activation='relu')(h)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(11, activation = 'relu')(norm)
+        norm = Dropout(rate=RATE)(h)
+        h = Dense(3, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
+class Model4Exp(mc.ClassModel):
+    def get_outputs(self):
+        self.name = '4layersExp'
+        self.epochs = 11
+        h = self.inputs
+        h = BatchNormalization(momentum=0.6)(h)
+        h = Dense(36, activation='relu')(h)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(11, activation = 'relu')(norm)
+        norm = BatchNormalization(momentum=0.6)(h)
+        h = Dense(3, activation = 'relu')(norm)
+        return Dense(1, activation='linear', name='output')(h)
+
 class Model4(mc.ClassModel):
     def get_outputs(self):
         self.name = '4layers'
@@ -267,7 +416,7 @@ class ModelDumb(mc.ClassModel):
         h = Dense(2, activation='relu')(h)
         return Dense(1, activation='linear', name='output')(h)
 
-MODELS = [Model4Exp]#ModelDefault, ModelHigherMomentumDefault, ModelShrinkDefault, Model7, ModelShrink7, Model6, Model5, Model4]
+MODELS = [Model4ExpLLLow, Model4ExpNaught]
 
 
 
@@ -307,13 +456,14 @@ if __name__ == '__main__':
     parser.add_argument('--hidden', type=int, default=4)
     parser.add_argument('--trials', type=int, default=1)
     parser.add_argument('--datadir', type=str, default='output/')
+    parser.add_argument('--region', type=str, default='')
     args = parser.parse_args()
 
     basedir = args.datadir
     figsdir =  basedir+'plots/'
     modeldir = 'models/evt/v%i/'%(args.version)
 
-    sample = mc.Sample("RecHits", basedir)
+    sample = mc.Sample("RecHits", basedir, region=args.region)
     n_inputs = sample.X.shape[1]
     
     print 'N_INPUTS:', n_inputs
@@ -331,7 +481,7 @@ if __name__ == '__main__':
             if args.epochs == 0:
                 model.train(sample, mahi=args.mahi)
             else:
-                model.train(sample, epochs=args.epochs, mahi=args.mahi)
+                model.train(sample, num_epochs=args.epochs, mahi=args.mahi)
             model.save_as_keras(modeldir+model.name+'/weights.h5')
             model.save_as_tf(modeldir+model.name+'/graph.pb')
         else:

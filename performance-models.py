@@ -1,4 +1,3 @@
-# 64657374726f79206d616869
 import os, sys
 import numpy as np
 import pandas as pd
@@ -69,12 +68,12 @@ def drawTH1(figs, title, axes, figdir, filename, l0 = None):
     
 
 def performance(df, times, figdir):
-    #define methods to plot, target variable, and binning variables
+    # define methods to plot, target variable, and binning variables
     methods     = ["Mahi","DNN","M3"]
     target      = "genE"
     variables   = {
-        "PU" : [10, 35, 45, 70],
-        "pt" : [1.,5.,10.,15.,20.,25.,30.,40.,60.,80.,100.],#1.,5.,7.,10.,13.,15.,17.,20.,30.,40.,50.,60.,70.,80.,90.,100.],
+        "PU" : [30, 60, 80, 110],#[10, 35, 45, 70],#[30, 60, 80, 110],
+        "pt" : [1.,5.,10.,15.,20.,25., 30.,40.,60., 80., 100.],#5, 10, 15, 20, 25, 30, 40, ...#1.,5.,7.,10.,13.,15.,17.,20.,30.,40.,50.,60.,70.,80.,90.,100.],
     }
     print len(variables)
     if len(variables) == 2:
