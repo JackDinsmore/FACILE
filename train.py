@@ -21,6 +21,7 @@ import pickle
 import ROOT 
 from keras.utils.vis_utils import plot_model
 
+import tensorflow as tf
 VALSPLIT = 0.3 #0.7	
 np.random.seed(4)
 Nrhs = 600000
@@ -29,8 +30,6 @@ def _make_parent(path):
     os.system('mkdir -p %s'%('/'.join(path.split('/')[:-1])))
 
 def get_mu_std(sample):
-
-    #sample.X = np.reshape(sample.X, (sample.X.shape[0],sample.X.shape[1]))
     mu = np.mean(sample.X, axis=0)
     std = np.std(sample.X, axis=0)
     return mu, std
@@ -38,13 +37,9 @@ def get_mu_std(sample):
 
 def savepickle(methods,binning,modeldir):
 
-    print [arr for _,arr in methods.iteritems()]
-    print [arr.shape for _,arr in methods.iteritems()]
     a = np.concatenate([arr for _, arr in methods.iteritems()] + [arr for _,arr in binning.iteritems()],axis=1)
-    print a  
 
     df = pd.DataFrame(data=a,columns=[name for name, _ in methods.iteritems()] + [name for name, _ in binning.iteritems()])
-    print df
     df.to_pickle(modeldir+"results_%s%s.pkl"%(args.region,args.inferencefile))
 
 ### Sample class
@@ -54,34 +49,22 @@ class Sample(object):
 
         self.X = np.load('%s/%s_%s%s.pkl'%(base,'X',args.region,args.inferencefile),allow_pickle=True)[:Nrhs]
         self.X.drop(['PU','pt',],1,inplace=True)
-        print np.unique(self.X['ieta'].values)
         depth = np.load('%s/%s_%s%s.pkl'%(base,'X',args.region,args.inferencefile),allow_pickle=True)[:Nrhs][['depth']]
-        #ieta = np.load('%s/%s_%s.pkl'%(base,'X',args.region),allow_pickle=True)[:Nrhs][['ieta']]
-        #iphi = np.load('%s/%s_%s.pkl'%(base,'X',args.region),allow_pickle=True)[:Nrhs][['iphi']]
-        #enc = OneHotEncoder(handle_unknown='ignore').fit(depth)
-
-        #enc.transform(depth).toarray()
-        #ieta = np_utils.to_categorical(ieta)
-        #print ieta.shape
-        #iphi = np_utils.to_categorical(iphi)
         depth = np_utils.to_categorical(depth,num_classes=8)
         depth = pd.DataFrame(depth, columns=['depth%i'%i for i in range(0,8)])
-        #ieta = pd.DataFrame(ieta, columns=[['ieta%i'%i for i in range(-30,30)]])
-        #iphi = pd.DataFrame(iphi, columns=[['iphi%i'%i for i in range(0,73)]])#,dtype='int')
-        #self.X = np.concatenate((self.X,depth),axis=1)
         self.X = self.X.join([depth])
 
        
 
         self.Y = np.load('%s/%s_%s%s.pkl'%(base,'Y',args.region,args.inferencefile),allow_pickle=True)[:Nrhs]
+        
 
-
-        #self.Y['genE'][self.X['depth'] == 1.] *= 0.5 # self.Y['genE'][self.X['depth'] == 1.]*4./12.
+        self.Y['genE'][self.X['depth'] == 1.] *= 0.5 # self.Y['genE'][self.X['depth'] == 1.]*4./12.
 
        
 
-        self.X.drop(['depth','depth0'],1,inplace=True)
-        print self.X.columns
+        if args.region == 'HB': self.X.drop(['depth','depth0','depth5','depth6','depth7'],1,inplace=True)
+        else: self.X.drop(['depth','depth0'],1,inplace=True)
         self.kin = np.load('%s/%s_%s%s.pkl'%(base,'X',args.region,args.inferencefile),allow_pickle=True)[:Nrhs][['PU','ieta','iphi','pt','depth']]
 
         self.idx = np.random.permutation(self.X.shape[0])
@@ -120,15 +103,18 @@ class ClassModel(object):
         if args.region == 'HB': 
          h = BatchNormalization(momentum=0.6)(h)
          h = Dense(12,activation='relu')(h)
+         drop = Dropout(0.6)(h)
+         h = BatchNormalization(momentum=0.2)(h)
+         #h = Dense(12,activation='relu')(h)
+         #drop = Dropout(0.6)(h)
          #h = BatchNormalization(momentum=0.2)(h)
          #h = Dense(7,activation='relu')(h)
-         drop = Dropout(0.4)(h)
-         h = BatchNormalization(momentum=0.6)(h)
+         #h = BatchNormalization(momentum=0.6)(h)
          h = Dense(5,activation='relu')(h)
          h = BatchNormalization(momentum=0.6)(h)
          h = Dense(3,activation='relu')(h)
          h = BatchNormalization(momentum=0.6)(h)
-         self.outputs = Dense(1,activation='linear',name='output')(h)
+         self.outputs = Dense(1,activation='relu',name='output')(h)
 
 
 	if args.region == 'HE':
@@ -148,7 +134,7 @@ class ClassModel(object):
 
         self.model = Model(inputs=self.inputs, outputs=self.outputs)
         self.model.compile(optimizer=Adam(), loss='mean_squared_error')
-        self.es = EarlyStopping(monitor='loss', mode='min', verbose=1, patience=5)
+        self.es = EarlyStopping(monitor='loss', mode='min', verbose=1, patience=10)
         #mc = ModelCheckpoint('best_model.h5', monitor='val_acc', mode='max', verbose=1, save_best_only=True)
 
         plot_model(self.model,to_file='models/v%i/model_%s.eps'%(args.version,args.region),show_shapes=True)
@@ -167,13 +153,6 @@ class ClassModel(object):
                                  validation_data=(vX, vY,),
 				 callbacks=[self.es])
 
-        plt.plot(history.history['loss'])
-        plt.plot(history.history['val_loss'])
-        plt.ylabel('loss')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
-        plt.savefig('loss.png')
-        plt.savefig('loss.pdf')
         with open('history.log','w') as flog:
             history = history.history
             flog.write(','.join(history.keys())+'\n')
@@ -187,15 +166,11 @@ class ClassModel(object):
 
     def save_as_tf(self,path):
         _make_parent(path)
-        sess = K.get_session()
-        print [l.op.name for l in self.model.inputs],'->',[l.op.name for l in self.model.outputs]
-        graph = graph_util.convert_variables_to_constants(sess,
-                                                          sess.graph.as_graph_def(),
-                                                          [n.op.name for n in self.model.outputs])
-        p0 = '/'.join(path.split('/')[:-1])
-        p1 = path.split('/')[-1]
-        graph_io.write_graph(graph, p0, p1, as_text=False)
-        print 'Saved to',path
+
+        frozen_graph = freeze_session(K.get_session(),
+                              output_names=[out.op.name for out in self.model.outputs])
+
+        tf.train.write_graph(frozen_graph, '/'.join(path.split('/')[:-1]), path.split('/')[-1], as_text=False)
 
     def predict(self, *args, **kwargs):
         return self.model.predict(*args, **kwargs)
@@ -204,6 +179,21 @@ class ClassModel(object):
         self.model = load_model(path)
 
 
+def freeze_session(session, keep_var_names=None, output_names=None, clear_devices=True):
+    from tensorflow.python.framework.graph_util import convert_variables_to_constants
+    graph = session.graph
+    with graph.as_default():
+        freeze_var_names = list(set(v.op.name for v in tf.global_variables()).difference(keep_var_names or []))
+        output_names = output_names or []
+        output_names += [v.op.name for v in tf.global_variables()]
+        # Graph -> GraphDef ProtoBuf
+        input_graph_def = graph.as_graph_def()
+        if clear_devices:
+            for node in input_graph_def.node:
+                node.device = ""
+        frozen_graph = convert_variables_to_constants(session, input_graph_def,
+                                                      output_names, freeze_var_names)
+        return frozen_graph
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -246,9 +236,6 @@ if __name__ == '__main__':
 		   "M0"  : sample.Y['eraw'].values.reshape(sample.kin['ieta'].shape[0],1),
 		   "M3"  : sample.Y['em3'].values.reshape(sample.kin['ieta'].shape[0],1)
 		   }
-
-        #print sample.Y['energy'].values.reshape(Nrhs,1)[0:10]
-        #print sample.Y['genE'].values.reshape(Nrhs,1)[0:10]
 
         binning = {
 		   "ieta" : sample.kin['ieta'].values.reshape(sample.kin['ieta'].shape[0],1),
