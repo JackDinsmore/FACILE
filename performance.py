@@ -34,8 +34,8 @@ def rootfit(methodarr, genarr, methodname, purange, ptrange):
     th = ROOT.TH1F(name,name,bq2 - bq1, q1, q2)
     for it0,it1 in enumerate(range(bq1, bq2)):
        th.SetBinContent(it0+1,tmp.GetBinContent(it1))
-    th.Scale(1./th.Integral())
-
+    try: th.Scale(1./th.Integral())
+    except: pass
     func = ROOT.TF1(name,"gaus",q1,q2)
     result = th.Fit(func,"q s")
     if result.Status(): print "fit problem: in %.0f < PU < %.0f, %.0f < pt < %.0f"%(purange[0],purange[1],ptrange[0],ptrange[1])
@@ -43,7 +43,7 @@ def rootfit(methodarr, genarr, methodname, purange, ptrange):
     std = tmp.GetStdDev()#func.GetParameter(2)
     axis = {"x" : "E_{%s} - E_{gen}"%(methodname), "y" : "Density"}
     title = "%s %.0f < PU < %.0f, %.0f < p_{T} < %.0f"%(methodname,purange[0],purange[1],ptrange[0],ptrange[1])
-    drawTH1([th,func], title, axis, name)
+    #drawTH1([th,func], title, axis, name)
 
     #del tmp; del func; del th
     return mu, std
@@ -70,7 +70,7 @@ def drawTH1(figs, title, axes, filename, l0 = None, info = None, lims=None):
          fig.GetYaxis().SetRangeUser(lims["ylower"],lims["yupper"])
          fig.GetXaxis().SetRangeUser(lims["xlower"],lims["xupper"])
 
-    addInfo = ROOT.TPaveText(0.4,0.7,0.63,0.9,"NDC")
+    addInfo = ROOT.TPaveText(0.5,0.72,0.7,0.9,"NDC")
     if info is not None:
        for key,var in info.iteritems():
          addInfo.AddText(key+" "+var)
@@ -82,9 +82,10 @@ def drawTH1(figs, title, axes, filename, l0 = None, info = None, lims=None):
        addInfo.Draw()
 
     if l0 is not None: 
+       l0.SetTextAlign(22)
        l0.SetBorderSize(2)
        l0.SetFillStyle(0)
-       l0.SetTextSize(0.04)
+       l0.SetTextSize(0.05)
        l0.SetTextFont(42)
        l0.Draw("p") 
 
@@ -102,8 +103,8 @@ def performance(df):
     methods     = ["Mahi","DNN",]
     target      = "genE"
     variables   = {
-		   "PU" : [1,200],
-                   "genE" : [0.,1.,2.,3.,4.,5.,8.,11.,14.,17.,20.,25.,30.,35.,40.,50.,60.,70.,80.,90.,110],
+		   "PU" : [1,100],
+                   "genE" : [ 0.1,1.,1.5,2.,3.,4.,5.,8.,11.,14.,17.,20.,25.] # [0.1,1.,1.5,2.,3.,4.,5.,8.,11.,14.,17.,20.,30.,40.,50.,70.,100.,150.] # [0.1,1.,1.5,2.,3.,4.,5.,8.,11.,14.,17.,20.,25.] 60.,70.,80.,90.,110.],
 	          }
 
     if len(variables) == 2:
@@ -112,6 +113,7 @@ def performance(df):
        
        if 'HE' in args.pickle: ietal = [16,30]
        elif 'HB' in args.pickle: ietal = [0,15]
+       elif 'all' in args.pickle: ietal = [0,30]
        for ietait, ieta in enumerate(ietal):
 
           if ietait == len(ietal) - 1: break
@@ -119,8 +121,10 @@ def performance(df):
 
              mg_resp  = ROOT.TMultiGraph()
              mg_reso  = ROOT.TMultiGraph()
-             l0 = ROOT.TLegend(0.7,0.7,0.9,0.9)
+             l0 = ROOT.TLegend(0.75,0.75,0.9,0.9)
  
+             color = {"DNN" : 797,
+  		      "Mahi": 418}
              col = 0
              for method in methods:
               hresolution = ROOT.TGraph(len(variables["genE"]) - 1)
@@ -131,8 +135,8 @@ def performance(df):
 
 
                if args.depth == 0.:
-                genarr = df[(abs(df["ieta"]) >= ietal[ietait]) & (abs(df["ieta"]) <= ietal[ietait+1]) & (df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["genE"] > variables["genE"][it1]) & (df["genE"] < variables["genE"][it1+1]) & (~df["depth"].isin([1.])) ][['genE']].values 
-                tmparr = df[(abs(df["ieta"]) >= ietal[ietait]) & (abs(df["ieta"]) <= ietal[ietait+1]) & (df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["genE"] > variables["genE"][it1]) & (df["genE"] < variables["genE"][it1+1]) & (~df["depth"].isin([1.]))][[method]].values
+                genarr = df[(abs(df["ieta"]) >= ietal[ietait]) & (abs(df["ieta"]) <= ietal[ietait+1]) & (df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["genE"] > variables["genE"][it1]) & (df["genE"] < variables["genE"][it1+1]) ][['genE']].values 
+                tmparr = df[(abs(df["ieta"]) >= ietal[ietait]) & (abs(df["ieta"]) <= ietal[ietait+1]) & (df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["genE"] > variables["genE"][it1]) & (df["genE"] < variables["genE"][it1+1]) ][[method]].values
 
                else:
                 tmparr = df[(abs(df["ieta"]) >= ietal[ietait]) & (abs(df["ieta"]) <= ietal[ietait+1]) & (df["PU"] > variables["PU"][it0]) & (df["PU"] < variables["PU"][it0+1]) & (df["genE"] > variables["genE"][it1]) & (df["genE"] < variables["genE"][it1+1]) & (df["depth"] == args.depth )][[method]].values 
@@ -146,31 +150,31 @@ def performance(df):
                hresponse.SetPoint(it1,   meangenE, 1 - mu/std/meangenE)
 
               l0.AddEntry(hresolution,method)
-              hresolution.SetMarkerSize(2)
-              hresolution.SetMarkerStyle(col+1)
-              hresolution.SetMarkerColor(col+1)
+              hresolution.SetMarkerSize(1.2)
+              hresolution.SetMarkerStyle(20)
+              hresolution.SetMarkerColor(color[method])
               hresolution.SetName(method)
-              hresponse.SetMarkerSize(2)
-              hresponse.SetMarkerStyle(col+1)
-              hresponse.SetMarkerColor(col+1)
+              hresponse.SetMarkerSize(1.2)
+              hresponse.SetMarkerStyle(20)
+              hresponse.SetMarkerColor(color[method])
               hresponse.SetName(method)
               mg_resp.Add(hresponse)
               mg_reso.Add(hresolution)
               del hresolution; del hresponse
 
              name = "%.0f < PU < %.0f, %i < ieta < %i"%(variables["PU"][it0],variables["PU"][it0+1], ietal[ietait], ietal[ietait+1])
-             axis = {"y":"#sigma_{E}/E", "x": "E_{gen} (GeV)"}
-             info = {"Depth" : "all" if not args.depth else str(args.depth),
+             info = {"Depth" : "all" if not args.depth else str(int(args.depth)),
 		     "PU"    : "%i, %i"%(variables["PU"][it0],variables["PU"][it0+1]),
 		     "i#eta" : "%i, %i"%(ietal[ietait], ietal[ietait+1])
 		    }
-             lims = {"ylower" : 0.0, "yupper" : 0.8, "xlower" : variables["genE"][0], "xupper" : variables["genE"][-1]}
+             lims = {"ylower" : 0.0, "yupper" : 1.0, "xlower" : variables["genE"][0], "xupper" : variables["genE"][-1]}
+             axis = {"y":"#sigma_{E}/E", "x": "E_{gen} (GeV)"}
 
-             drawTH1([mg_reso], name, axis, "resolution_%iPU_%iIETA"%(it0,ietait),l0, info,lims) 
-             lims = {"ylower" : 0.4, "yupper" : 1.3, "xlower" : variables["genE"][0], "xupper" : variables["genE"][-1]}
+             drawTH1([mg_reso], name, axis, "resolution_%iPU%i_%iIETA%i_%sDEPTH"%(variables["PU"][it0],variables["PU"][it0+1],ietal[ietait],ietal[ietait+1], "all" if args.depth == 0. else str(int(args.depth))),l0, info,lims) 
              
+             lims = {"ylower" : 0.4, "yupper" : 1.3, "xlower" : variables["genE"][0], "xupper" : variables["genE"][-1]}
              axis = {"y":"Response", "x": "E_{gen} (GeV)"} 
-             drawTH1([mg_resp], name, axis, "response_%iPU_%iIETA"%(it0,ietait),l0, info,lims)
+             drawTH1([mg_resp], name, axis, "response_%iPU%i_%iIETA%i_%sDEPTH"%(variables["PU"][it0],variables["PU"][it0+1],ietal[ietait],ietal[ietait+1], "all" if args.depth == 0. else str(int(args.depth))),l0, info,lims)
 
 
 if __name__ == '__main__':

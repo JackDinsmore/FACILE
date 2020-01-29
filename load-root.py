@@ -8,6 +8,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--HE', dest='HE',action='store_true', default=False, help='Provide a filename to read')
 parser.add_argument('--HB', dest='HB',action='store_true', default=False, help='Provide a filename to read')
+parser.add_argument('--allreg', dest='allreg',action='store_true', default=False, help='Provide a filename to read')
 parser.add_argument('--filename', help='Provide a filename to read', default='/data/t3home000/jkrupa/rh_studies/Out.root_skimmedRH2.root')
 parser.add_argument('--outdir',   help='Provide an output directory')
 parser.add_argument('--mahi', action='store_true', help='Set if you wish to include train to match mahi')
@@ -36,6 +37,7 @@ def load_root(filename, branches=None):
 
     if args.HE:    return root_numpy.tree2array(rtree, selection='abs(ieta) > 15', branches=branches)
     elif args.HB:  return root_numpy.tree2array(rtree, selection='abs(ieta) <=  15', branches=branches)
+    elif args.allreg: return root_numpy.tree2array(rtree, branches=branches)
 
 if __name__ == '__main__':
 
@@ -58,3 +60,6 @@ if __name__ == '__main__':
     elif args.HB:
       save('X_HB%s'%args.inferencefile,Xarr)
       save('Y_HB%s'%args.inferencefile,Yarr)
+    elif args.allreg:
+      save('X_all%s'%args.inferencefile,Xarr)
+      save('Y_all%s'%args.inferencefile,Yarr)

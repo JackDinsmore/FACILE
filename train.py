@@ -24,7 +24,7 @@ from keras.utils.vis_utils import plot_model
 import tensorflow as tf
 VALSPLIT = 0.3 #0.7	
 np.random.seed(4)
-Nrhs = 600000
+Nrhs = 4000000
 
 def _make_parent(path):
     os.system('mkdir -p %s'%('/'.join(path.split('/')[:-1])))
@@ -117,7 +117,7 @@ class ClassModel(object):
          self.outputs = Dense(1,activation='relu',name='output')(h)
 
 
-	if args.region == 'HE':
+	if args.region == 'HE' or args.region == 'all':
          #h = BatchNormalization(momentum=0.6)(h)
          #h = Dense(40, activation='relu')(h)
          #drop = Dropout(0.1)(h)
@@ -149,7 +149,7 @@ class ClassModel(object):
         vY = sample.Y[['genE']].values[sample.vidx] 
 
         history = self.model.fit(tX, tY, 
-                                 batch_size=5000, epochs=200, shuffle=True,
+                                 batch_size=5000, epochs=50, shuffle=True,
                                  validation_data=(vX, vY,),
 				 callbacks=[self.es])
 
