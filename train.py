@@ -52,21 +52,27 @@ class Sample(object):
         depth = np.load('%s/%s_%s%s.pkl'%(base,'X',args.region,args.inferencefile),allow_pickle=True)[:Nrhs][['depth']]
         depth = np_utils.to_categorical(depth,num_classes=8)
         depth = pd.DataFrame(depth, columns=['depth%i'%i for i in range(0,8)])
-        self.X = self.X.join([depth])
+      
+        ieta = abs(np.load('%s/%s_%s%s.pkl'%(base,'X',args.region,args.inferencefile),allow_pickle=True)[:Nrhs][['ieta']])
+        
+        ieta = np_utils.to_categorical(ieta,num_classes=30)
+        ieta = pd.DataFrame(ieta, columns=['ieta%i'%i for i in range(0,30)])
+
+        print depth, ieta
+        self.X = self.X.join([depth,ieta])
 
        
 
         self.Y = np.load('%s/%s_%s%s.pkl'%(base,'Y',args.region,args.inferencefile),allow_pickle=True)[:Nrhs]
         
-
-        self.Y['genE'][self.X['depth'] == 1.] *= 0.5 # self.Y['genE'][self.X['depth'] == 1.]*4./12.
+        #self.Y['genE'][self.X['depth'] == 1.] *= 0.5 # self.Y['genE'][self.X['depth'] == 1.]*4./12.
 
        
 
         if args.region == 'HB': self.X.drop(['depth','depth0','depth5','depth6','depth7'],1,inplace=True)
-        else: self.X.drop(['depth','depth0'],1,inplace=True)
+        else: self.X.drop(['depth','depth0','ieta','ieta0'],1,inplace=True)
         self.kin = np.load('%s/%s_%s%s.pkl'%(base,'X',args.region,args.inferencefile),allow_pickle=True)[:Nrhs][['PU','ieta','iphi','pt','depth']]
-
+        print self.X.columns
         self.idx = np.random.permutation(self.X.shape[0])
 
     @property
@@ -121,15 +127,26 @@ class ClassModel(object):
          #h = BatchNormalization(momentum=0.6)(h)
          #h = Dense(40, activation='relu')(h)
          #drop = Dropout(0.1)(h)
-         norm = BatchNormalization(momentum=0.6)(h)
+         #norm = BatchNormalization(momentum=0.6)(h)
          #h = Dense(20, activation = 'relu')(norm)
          #norm = BatchNormalization(momentum=0.6)(h)
-         h = Dense(31, activation = 'relu')(norm)
+         #h = Dense(31, activation = 'relu')(h)
+         #norm = BatchNormalization(momentum=0.6)(h)
+         #h = Dense(11, activation = 'relu')(h)
+         #norm = BatchNormalization(momentum=0.6)(h)
+         #h = Dense(3, activation = 'relu')(h)
+         #norm = BatchNormalization(momentum=0.6)(h)
+
+
          norm = BatchNormalization(momentum=0.6)(h)
-         h = Dense(11, activation = 'relu')(norm)
-         norm = BatchNormalization(momentum=0.6)(h)
-         h = Dense(3, activation = 'relu')(norm)
-         norm = BatchNormalization(momentum=0.6)(h)
+         #h = Dense(200, activation = 'relu')(norm)
+         #h = Dense(100, activation = 'relu')(norm)
+         h = Dense(30, activation = 'relu')(norm)
+         h = Dense(20, activation = 'relu')(h)
+         h = Dense(10, activation = 'relu')(h)
+         h = Dense(5, activation = 'relu')(h)
+
+
          self.outputs = Dense(1, activation='linear', name='output')(h)
 
         self.model = Model(inputs=self.inputs, outputs=self.outputs)
@@ -143,15 +160,18 @@ class ClassModel(object):
 
     def train(self, sample):
 
+        print sample.X.values
         tX = sample.X.values[sample.tidx]
         vX = sample.X.values[sample.vidx]
         tY = sample.Y[['genE']].values[sample.tidx]
         vY = sample.Y[['genE']].values[sample.vidx] 
-
         history = self.model.fit(tX, tY, 
-                                 batch_size=5000, epochs=50, shuffle=True,
+                                 batch_size=500, epochs=100, shuffle=True,
                                  validation_data=(vX, vY,),
 				 callbacks=[self.es])
+        model_json = self.model.to_json()	
+        with open("model.json", "w") as json_file:
+            json_file.write(model_json)
 
         with open('history.log','w') as flog:
             history = history.history

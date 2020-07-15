@@ -37,7 +37,7 @@ def load_root(filename, branches=None):
 
     if args.HE:    return root_numpy.tree2array(rtree, selection='abs(ieta) > 15', branches=branches)
     elif args.HB:  return root_numpy.tree2array(rtree, selection='abs(ieta) <=  15', branches=branches)
-    elif args.allreg: return root_numpy.tree2array(rtree, branches=branches)
+    elif args.allreg: return root_numpy.tree2array(rtree, branches=branches, selection='genE > 0.1')
 
 if __name__ == '__main__':
 
